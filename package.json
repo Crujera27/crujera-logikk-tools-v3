@@ -1,0 +1,23 @@
+{
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "discord.js": "^13.13.1",
+    "mysql": "^2.18.1"
+  },
+  "name": "crujera-logikk-tools-v3",
+  "description": "V3 logikk tools con mysql y menos bugs",
+  "version": "3.0.0",
+  "main": "main.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Crujera27/crujera-logikk-tools-v3.git"
+  },
+  "author": "Crujera27",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Crujera27/crujera-logikk-tools-v3/issues"
+  },
+  "homepage": "https://github.com/Crujera27/crujera-logikk-tools-v3#readme"
+}
