@@ -71,7 +71,7 @@ app.get('/logout', function(req, res, next){
     if (req.isAuthenticated()) {
     req.logout(function(err) {
       if (err) { return next(err); }
-      res.redirect('/');
+      res.render('loggedout', {});
     });
 }else{
     return res.redirect('/')
