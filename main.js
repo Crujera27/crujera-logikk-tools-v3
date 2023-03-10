@@ -29,12 +29,13 @@ client.on('ready', () => {
 });
 
 client.on('message', message => {
-    if (!message.member.roles.cache.has('905124615406358599') && message.content.startsWith('lt!') == true) {
         if (message.author.bot || !message.guild) return;
-       return message.reply(':x: | No tienes permiso para ejecutar ningún comando. Este bot es exclusivo para staff.')
-      }
+    
       
       if (message.content.startsWith('lt!warn')) {
+if (!message.member.permissions.has('MANAGE_ROLES')) {
+  return message.reply('No tienes permiso para ejecutar este comando');
+}
         // Obtenemos el usuario que recibirá el warn
         const user = message.mentions.users.first();
         if (!user) {
@@ -77,8 +78,7 @@ client.on('message', message => {
           if (warnLevel === 'leve' && warnCount.leve >= 3) {
             warnLevel = 'medio';
             applyWarn = false;
-            banMessage = `⚠ ${user.username} 
-            ha superado el máximo de warns leve. Este debería de ser aislado temporalmente y aplicarle un warn medio de acuerdo con la normativa vigente.`;
+            banMessage = `⚠ ${user.username} ha superado el máximo de warns leve. Este debería de ser aislado temporalmente y aplicarle un warn medio de acuerdo con la normativa vigente.`;
             db.query(`DELETE FROM warns WHERE user_id = '${user.id}' AND level = 'leve' LIMIT 3`, (err) => {
               if (err) throw err;
               console.log(`Se han eliminado 3 warns leves de ${user.username}.`);
@@ -121,6 +121,9 @@ client.on('message', message => {
           }
         })        
   } else if (message.content.startsWith('lt!historial')) {
+      	      if (!message.member.permissions.has('MANAGE_ROLES')) {
+ 		 return message.reply('No tienes permiso para ejecutar este comando');
+              }
     const args = message.content.trim().split(/ +/g);
     const user = message.mentions.users.first();
     const user_id = user ? user.id : args[1];
@@ -148,11 +151,8 @@ client.on('message', message => {
           }
           
       
-        
-      });
-      
-  }
-});
+    
+      })}})
 
 
 function clearOldWarns() {
