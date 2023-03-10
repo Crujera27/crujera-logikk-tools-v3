@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Logikk's Dashboard</title>
+  <style>
+    body {
+      background-color: #222;
+      color: #fff;
+      font-family: sans-serif;
+    }
+    .navbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background-color: #111;
+      padding: 10px;
+    }
+    .navbar a {
+      color: #fff;
+      text-decoration: none;
+      margin-right: 20px;
+    }
+    .navbar a:hover {
+      text-decoration: underline;
+    }
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    h1 {
+      font-size: 3rem;
+      margin-bottom: 0;
+    }
+    h2 {
+      font-size: 2rem;
+      margin-top: 0;
+      opacity: 0.8;
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <h2>Logikk's Dashboard</h2>
+    <a href="/logout">Cerrar sesión</a>
+  </nav>
+  <div class="container">
+    <h1>Bienvenido, <%= user.username %>#<%= user.discriminator %>!</h1>
+    <p>En esta página podrás ver tus warns.</p>
+    <a href="/warns" class="button">Ver lista de warns</a>
+  </div>
+</body>
+</html>

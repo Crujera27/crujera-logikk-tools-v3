@@ -4,7 +4,12 @@
   },
   "dependencies": {
     "discord.js": "^13.13.1",
-    "mysql": "^2.18.1"
+    "ejs": "^3.1.8",
+    "express": "^4.18.2",
+    "express-session": "^1.17.3",
+    "mysql": "^2.18.1",
+    "passport": "^0.6.0",
+    "passport-discord": "^0.1.4"
   },
   "name": "crujera-logikk-tools-v3",
   "description": "V3 logikk tools con mysql y menos bugs",

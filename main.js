@@ -76,7 +76,7 @@ client.on('message', message => {
           if (warnLevel === 'leve' && warnCount.leve >= 3) {
             warnLevel = 'medio';
             applyWarn = false;
-            banMessage = emojis.warn+` | ${user.username} ha superado el máximo de warns leve. Este debería de ser aislado temporalmente y aplicarle un warn medio de acuerdo con la normativa vigente.`;
+            banMessage = emojis.warn+` | **${user.tag}** ha superado el máximo de warns leve. Este debería de ser aislado temporalmente y aplicarle un warn medio de acuerdo con la normativa vigente.`;
             db.query(`DELETE FROM warns WHERE user_id = '${user.id}' AND level = 'leve' LIMIT 3`, (err) => {
               if (err) throw err;
               console.log(`Se han eliminado 3 warns leves de ${user.username}.`);
@@ -84,14 +84,14 @@ client.on('message', message => {
           } else if (warnLevel === 'medio' && warnCount.medio >= 3) {
             warnLevel = 'grave';
             applyWarn = false;
-            banMessage = emojis.warn+` | ${user.username} ha superado el máximo de warns medios. Este debería de ser aislado temporalmente y aplicarle un warn grave de acuerdo con la normativa vigente.`;
+            banMessage = emojis.warn+` | **${user.tag}** ha superado el máximo de warns medios. Este debería de ser aislado temporalmente y aplicarle un warn grave de acuerdo con la normativa vigente.`;
             db.query(`DELETE FROM warns WHERE user_id = '${user.id}' AND level = 'medio' LIMIT 3`, (err) => {
               if (err) throw err;
               console.log(`Se han eliminado 3 warns medios de ${user.username}.`);
             });
         } else if (warnLevel === 'grave' && warnCount.grave >= 3) {
             applyWarn = false;
-            banMessage = emojis.warn` | ${user.username} debe de ser baneado por superar la cantidad máxima de warns graves. (*Todos sus datos ya han sido eliminados*)`;
+            banMessage = emojis.warn` | **${user.tag}** debe de ser baneado por superar la cantidad máxima de warns graves. (*Todos sus datos ya han sido eliminados*)`;
             db.query(`DELETE FROM warns WHERE user_id = '${user.id}'`, (err) => {
                 if (err) throw err;
                 console.log(`Se han eliminado todos los warns de ${user.username}.`);
@@ -109,7 +109,7 @@ client.on('message', message => {
             db.query(`INSERT INTO warns (user_id, reason, level, staff) VALUES ('${user.id}', '${reason}', '${warnLevel}', '${message.author.id}')`, (err) => {
               if (err) {
                 console.error(err);
-                return message.reply('Me cachis! Ha ocurrido un error al guardar el warn en la base de datos.');
+                return message.reply('¡Me cachis! Ha ocurrido un error al guardar el warn en la base de datos.');
               }
               message.channel.send(`**${user.tag}** ha recibido un warn **${warnLevel}** con la razón: \`${reason}\``);
             });
@@ -144,12 +144,19 @@ client.on('message', message => {
               const warn = results[i];
               warnList += `${i + 1}. **Staff:** <@${warn.staff}>(${warn.staff}) **Razón:** ${warn.reason} **Gravedad:** ${warn.level} **Insinuado el:** ${warn.timestamp}\n`;
             }
-            message.channel.send(`Lista de warns para  **${user.tag}**:\n${warnList}`);
+            //message.channel.send(`Lista de warns para  **${user.tag}**:\n${warnList}`);
+            let embed = new Discord.MessageEmbed()
+              .setTitle(`Lista de warns para  **${user.tag}**`)
+              .setDescription(warnList)
+              .setColor("#0099ff")
+              message.channel.send({ embeds: [embed] })
+          }
+      });
           }
           
       
     
-      })}})
+      })
 
 
 function clearOldWarns() {
