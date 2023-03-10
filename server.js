@@ -12,7 +12,14 @@ const db = mysql.createConnection({
   database: dbconf.db,
 });
 const connection = db
+module.exports.db = connection
+const Sequelize = require('sequelize');
+const sequelize = new Sequelize(dbconf.db, dbconf.username, dbconf.pass, {
+  host: dbconf.host,
+  dialect: 'mysql'
+});
 
+module.exports.sequelize = sequelize;
 // Crear una aplicación de Express
 const app = express();
 app.set('view engine', 'ejs');
@@ -84,14 +91,55 @@ app.get('/not-approved', function(req, res, next){
 }else{
     return res.redirect('/auth/discord')
 }});
-app.get('/tickets', function(req, res, next){
+app.get('/tickets', async (req, res) => {
   if (req.isAuthenticated()) {
-      res.render('tickets', {
-          user: req.user,
-      });
+  const Ticket = require('./models/ticket');
+  // Obtener todos los tickets del usuario desde la base de datos
+  const tickets = await Ticket.findAll({
+    where: { userId: req.user.id },
+    order: [['updatedAt', 'DESC']]
+  });
+  res.render('tickets', { tickets, user: req.user });
 }else{
-  return res.redirect('/auth/discord')
-}});
+  return res.redirect('/auth/discord')}})
+  const ticketController = require('./models/ticketController');
+  app.post('/tickets', ticketController.createTicket);
+  app.get('/tickets/:id', ticketController.viewTicket);
+  function isAuthenticatedAndOwner(req, res, next) {
+    // Verificar si el usuario tiene una sesión iniciada
+    if (!req.session.user) {
+      // Si el usuario no tiene sesión, redirigirlo a la página de inicio de sesión
+      return res.redirect('/login');
+    }
+  
+    // Obtener el ID del ticket de la URL
+    const ticketId = req.params.id;
+  
+    // Obtener el ID del usuario de la sesión
+    const userId = req.session.user.id;
+  
+    // Verificar si el usuario es el dueño del ticket
+    db.query('SELECT user_id FROM tickets WHERE id = ?', [ticketId], (err, results) => {
+      if (err) throw err;
+  
+      const ticketOwnerId = results[0].user_id;
+  
+      if (ticketOwnerId !== userId) {
+        // Si el usuario no es el dueño del ticket, mostrar un error 403 (prohibido)
+        return res.status(403).send('No estás autorizado para ver este ticket');
+      }
+  
+      // Si el usuario tiene una sesión iniciada y es el dueño del ticket, continuar con la siguiente función middleware o el controlador correspondiente
+      next();
+    });
+  }
+  app.get('/tickets/:id', isAuthenticatedAndOwner, (req, res) => {
+    ticketController.viewTicket(req, res, req.user);
+  });
+  
+
+
+
 app.get('/', (req, res) => {
     // Verificar si el usuario ha iniciado sesión
     if (req.isAuthenticated()) {

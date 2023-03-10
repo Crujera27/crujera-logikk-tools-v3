@@ -52,11 +52,6 @@
     </button>
     <div class="collapse navbar-collapse" id="navbarCollapse">
       <ul class="navbar-nav mr-auto">
-        <% if (user.isStaff) { %>
-          <li class="nav-item">
-            <a class="nav-link" href="/staff">Staff</a>
-          </li>
-        <% } %>
         <li class="nav-item">
           <a class="nav-link" href="/warns">Mis warns</a>
         </li>
@@ -76,48 +71,32 @@
       </ul>
     </div>
   </nav>
-    <h1>Mis tickets</h1>
-    <h1>Mis tickets</h1>
-    <table>
-      <thead>
-        <tr>
-          <th>ID</th>
-          <th>Título</th>
-          <th>Información</th>
-          <th>Fecha de creación</th>
-          <th>Última actualización</th>
-          <th>Estado del ticket</th>
-          <!--<th>Ver ticket</th>-->
-        </tr>
-      </thead>
-      <tbody>
-        <% for (const ticket of tickets) { %>
-          <tr>
-            <td><%= ticket.id %></td>
-            <td><%= ticket.title %></td>
-            <td><%= ticket.description %></td>
-            <td><%= ticket.createdAt.toLocaleString() %></td>
-            <td><%= ticket.updatedAt.toLocaleString() %></td>
-            <td>
-              <% if (ticket.status === 'abierto') { %>
-                <span style="color: yellow">Aguardando revisión</span>
-              <% } else if (ticket.status === 'en progreso') { %>
-                <span style="color: green">Aceptado</span>
-              <% } else { %>
-                <span style="color: red">Denegado</span>
-              <% } %>
-            </td>
-            <!--<td>
-              <a href="/tickets/<%= ticket.id %>" class="button">Ver detalles</a>
-            </td>
-          -->
-          </tr>
-        <% } %>
-        </tbody>
-        </table>
-      </div>
-</html>
+<body>
+    <h1>Ticket <%= ticket.id %></h1>
+    &nbsp
+    <h1>Ticket <%= ticket.id %></h1>
+
+    <p><strong>Asunto:</strong> <%= ticket.subject %></p>
     
+    <p><strong>Descripción:</strong> <%= ticket.description %></p>
+    
+    <p><strong>Estado:</strong> <%= ticket.status %></p>
+    
+    <p><strong>Respuestas:</strong></p>
+    
+    <ul>
+        <% if (ticket_response) { %>
+            <ul>
+              <% ticket_response.forEach(function(response) { %>
+                <li>
+                  <p><%= response.text %></p>
+                  <<small><%= response.date %></small>
+                </li>
+              <% }) %>
+            </ul>
+          <% } %>          
+</body>
+</html>
 <style>
     body {
       background-color: #222;
@@ -176,5 +155,4 @@
       background-color: #333;
       color: #fff;
     }
-
 </style>
