@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.2/css/all.css" integrity="sha384-fnmoc6NQE9E3KDKr7LWv4x4QwVp4OibKQVQnUF9xZOpd5Nh15MYYW1i+NWQjM2Rw" crossorigin="anonymous">
+    <meta charset="UTF-8">
+    <title>Iniciar sesión con Discord</title>
+    <style>
+        body {
+            background-color: #1c1e22;
+            color: white;
+            font-family: sans-serif;
+            margin: 0;
+        }
+        .container {
+            display: flex;
+            flex-direction: row;
+            height: 100vh;
+            width: 100vw;
+        }
+        .left {
+            background-image: url('https://www.galnod.live/images/woofer.png');
+            background-size: cover;
+            background-position: center;
+            flex: 1;
+        }
+        .right {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            background-color: #252525;
+            border-left: 2px solid #444;
+        }
+        h1 {
+            font-size: 36px;
+            margin-top: 0;
+        }
+        h2 {
+            font-size: 26px;
+            margin-top: 0;
+        }
+        .discord-button {
+            text-decoration: none;
+            background-color: #7289da;
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-size: 18px;
+            margin-top: 20px;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            
+        }
+        .discord-icon {
+            width: 30px;
+            margin-right: 10px;
+        }
+        p {
+            font-size: 12px;
+            margin-top: 20px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="left"></div>
+        <div class="right">
+            <h1>Logikk's Dashboard</h1>
+            <h2>Inicia sesión para continuar</h2>
+            <a href="/auth/discord">
+                <button class="discord-button">
+                  <i class="fab fa-discord"></i> Iniciar sesión con Discord
+                </button>
+              </a>              
+            <p>Al utilizar este servicio estás de acuerdo con nuestra <a href="#">Política de Privacidad</a> y <a href="#">Términos de Servicio</a></p>
+        </div>
+    </div>
+</body>
+</html>

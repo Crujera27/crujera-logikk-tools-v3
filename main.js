@@ -2,6 +2,8 @@ const Discord = require('discord.js');
 const emojis = require('./config/emojis.json')
 const mysql = require('mysql');
 const { Client, Intents } = require('discord.js');
+require('./server')
+console.log('pterodactyl, bot started')
 const client = new Client({ 
     intents: [
       Intents.FLAGS.GUILDS, 
@@ -25,6 +27,13 @@ client.on('ready', () => {
   });
   client.user.setActivity('Logikk\'s Discord', { type: 'WATCHING' })
 });
+
+async function isBanned(userId) {
+  const guild = await client.guilds.fetch('905124554303762552');
+  const bans = await guild.fetchBans();
+  return bans.has(userId);
+}
+module.exports.isBanned == isBanned
 
 client.on('message', message => {
         if (message.author.bot || !message.guild) return;

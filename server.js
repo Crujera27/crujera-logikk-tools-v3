@@ -26,7 +26,7 @@ app.set('view engine', 'ejs');
 
 // Configurar la sesión de Express
 app.use(session({
-  secret: 'mi-secreto',
+  secret: 'vX7RsvhD44enVUPerHCKWuEws9PleC',
   resave: false,
   saveUninitialized: false,
 }));
@@ -136,21 +136,40 @@ app.get('/tickets', async (req, res) => {
   app.get('/tickets/:id', isAuthenticatedAndOwner, (req, res) => {
     ticketController.viewTicket(req, res, req.user);
   });
-  
+  app.get('/img/discord.png', (req, res) => {
+    // Verificar si el usuario ha iniciado sesión
+    if (req.isAuthenticated()) {
+      // Pasar los datos del usuario a la página de inicio
+      res.redirect('/dash');
+    } else {
+      res.render('discord.png')
+    }
+  }); 
 
 
 
 app.get('/', (req, res) => {
-    // Verificar si el usuario ha iniciado sesión
-    if (req.isAuthenticated()) {
-      // Pasar los datos del usuario a la página de inicio
-      res.render('index', {
-        user: req.user,
-    });
-    } else {
-      res.redirect('/auth/discord');
-    }
+  // Verificar si el usuario ha iniciado sesión
+  if (req.isAuthenticated()) {
+    // Pasar los datos del usuario a la página de inicio
+    res.redirect('/dash');
+  } else {
+    res.render('login', {
+      user: req.user,
   });
+  }
+});
+app.get('/dash', (req, res) => {
+  // Verificar si el usuario ha iniciado sesión
+  if (req.isAuthenticated()) {
+    // Pasar los datos del usuario a la página de inicio
+    res.render('index', {
+      user: req.user,
+  });
+  } else {
+    res.redirect('/auth/discord');
+  }
+});
 
   app.get('/warns', (req, res) => {
     if (req.isAuthenticated()) {

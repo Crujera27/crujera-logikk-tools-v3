@@ -59,6 +59,7 @@
     <h1>¡Se ha cerrado la sesión!</h1>
     <p>Hemos cerrado la sesión de tu cuenta correctamente. Ya puedes cerrar esta pestaña.</p>
     <a href="/auth/discord" class="btn btn-primary">Volver a iniciar sesión</a>
+    <a href="/" class="btn btn-primary">Volver al portal (Redirigiendo en <span id="countdown">15</span> segundos)</a>
   </div>
   <% include ("common/footer") %>
   <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
@@ -66,6 +67,19 @@
   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
 </body>
 </html>
+<script>
+  let countdown = 15;
+  const countdownEl = document.getElementById("countdown");
+
+  setInterval(() => {
+    countdown--;
+    countdownEl.innerText = countdown;
+  }, 1000);
+
+  setTimeout(() => {
+    window.location.href = "/";
+  }, 15000);
+</script>
 <style>
     body {
       background-color: #222;
