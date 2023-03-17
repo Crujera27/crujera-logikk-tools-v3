@@ -4,6 +4,8 @@ const passport = require('passport');
 const DiscordStrategy = require('passport-discord').Strategy;
 const mysql = require('mysql');
 const dbconf = require('./conf.d/mysql.json')
+const { createProxyMiddleware } = require('http-proxy-middleware');
+const path = require('path');
 // Crear una conexión a la base de datos MySQL
 const db = mysql.createConnection({
   host: dbconf.host,
@@ -70,7 +72,7 @@ passport.deserializeUser((id, done) => {
 // Crear las rutas para la autenticación de Discord
 app.get('/auth/discord', passport.authenticate('discord'));
 app.get('/auth/discord/callback', passport.authenticate('discord', {
-  failureRedirect: '/error',
+  failureRedirect: '/',
 }), (req, res) => {
   res.redirect('/');
 });
@@ -109,7 +111,7 @@ app.get('/tickets', async (req, res) => {
     // Verificar si el usuario tiene una sesión iniciada
     if (!req.session.user) {
       // Si el usuario no tiene sesión, redirigirlo a la página de inicio de sesión
-      return res.redirect('/login');
+      return res.redirect('/');
     }
   
     // Obtener el ID del ticket de la URL
@@ -133,6 +135,17 @@ app.get('/tickets', async (req, res) => {
       next();
     });
   }
+  app.get('/legal', (req, res) => {
+    res.redirect('/')
+  });
+  app.get('/legal/privacidad', (req, res) => {
+    const filePath = path.join(__dirname, './views/docs', 'Logikk\'s Dash - Política de Privacidad.pdf');
+    res.sendFile(filePath)
+  });
+  app.get('/legal/tos', (req, res) => {
+    const filePath = path.join(__dirname, './views/docs', 'Logikk\'s Dash - ToS.pdf');
+    res.sendFile(filePath)
+  });  
   app.get('/tickets/:id', isAuthenticatedAndOwner, (req, res) => {
     ticketController.viewTicket(req, res, req.user);
   });
@@ -201,7 +214,9 @@ app.get('/dash', (req, res) => {
     }
   });
     
-
+  app.use(function(req, res, next) {
+    res.status(404).redirect('/');
+  });  
   // Iniciar el servidor
   app.listen(3000, () => {
     console.log('Servidor iniciado en http://localhost:3000');
