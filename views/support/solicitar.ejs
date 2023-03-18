@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Logikk's Dashboard</title>
+  <title>Logikk's Dashboard - Nueva solicitud de soporte</title>
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
   <link href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
   <style>
@@ -46,26 +46,26 @@
 </head>
 <body>
   <nav class="navbar navbar-expand-md navbar-dark bg-dark fixed-top">
-    <a class="navbar-brand" href="">Logikk's Dashboard</a>
+    <a class="navbar-brand" href="/">Logikk's Dashboard</a>
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse" id="navbarCollapse">
       <ul class="navbar-nav mr-auto">
-        <li class="nav-item">
-          <a class="nav-link" href="/"></a>
-        </li>
         <% if (user.isStaff) { %>
           <li class="nav-item">
-            <a class="nav-link" href="/staff"></a>
+            <a class="nav-link" href="/staff">Staff</a>
           </li>
         <% } %>
         <li class="nav-item">
-          <a class="nav-link" href="/warns"></a>
+          <a class="nav-link" href="/warns">Mis warns</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="/tickets"></a>
+          <a class="nav-link" href="/tickets">Tickets</a>
         </li>
+        <li class="nav-item">
+            <a class="nav-link" href="/support">Soporte</a>
+          </li>
       </ul>
       <ul class="navbar-nav ml-auto">
         <li class="nav-item dropdown">
@@ -79,12 +79,33 @@
       </ul>
     </div>
   </nav>
-&nbsp
 <body>
-  <div class="container mt-5">
-    <h1>Cuenta suspendida</h1>
-    <p>Esta cuenta se encuentra actualmente suspendida indefinidamente por incumplir nuestros Términos de Servicios. No hay forma de apelar esta sanción.</p>
-  </div>
+    <div class="container mt-5">
+    <h1>Hola, <%= user.username %>#<%= user.discriminator %>. ¿Cómo te podemos ayudar?</h1>
+    <form method="POST" action="/support/enviado">
+        <div class="form-group">
+          <label for="userid">ID de Discord: </label>
+          <input type="text" class="form-control" id="userid" name="userid" value="<%= user.discord_id %>" readonly>
+        </div>
+        <div class="form-group">
+          <label for="category">Categoría:</label>
+          <select class="form-control" id="category" name="category">
+            <option value="1">Presentar una apelación formal en relación a un ban que me ha sido aplicado de manera incorrecta. (PROPORCIONA INFORMACIÓN ADICIONAL DEBAJO)</option>
+            <option value="2">Presentar una apelación formal en relación a un warn leve que me ha sido aplicado de manera incorrecta. (PROPORCIONA INFORMACIÓN ADICIONAL DEBAJO)</option>
+            <option value="3">Presentar una apelación formal en relación a un warn medio que me ha sido aplicado de manera incorrecta. (PROPORCIONA INFORMACIÓN ADICIONAL DEBAJO)</option>
+            <option value="4">Presentar una apelación formal en relación a un warn grave que me ha sido aplicado de manera incorrecta. (PROPORCIONA INFORMACIÓN ADICIONAL DEBAJO)</option>
+            <option value="5">Presentar una apelación formal en relación a un timeout que me ha sido aplicado de manera incorrecta. (PROPORCIONA INFORMACIÓN ADICIONAL DEBAJO)</option>
+            <option value="6">Presentar una apelación formal en relación a un warn medio que me ha sido aplicado de manera incorrecta. (PROPORCIONA INFORMACIÓN ADICIONAL DEBAJO)</option>
+            <option value="7">Solicitar formalmente la eliminación de toda mi información del sistema y mi suspensión indefinida de este mismo. (PROPORCIONA CORREO ELECTRÓNICO DE CONTACTO DEBAJO)</option>
+          </select>
+          <div class="form-group">
+            <label for="reason">Notas adicionales:</label>
+            <textarea class="form-control" id="reason" name="reason" rows="4" cols="50" required></textarea>
+          </div>          
+        </div>
+        <button type="submit" class="btn btn-primary">Enviar solicitud</button>
+      </form>
+      </div>
   <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNVeG6w" crossorigin="anonymous"></script>
   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
@@ -148,3 +169,4 @@
       background-color: #333;
       color: #fff;
     }
+</style>

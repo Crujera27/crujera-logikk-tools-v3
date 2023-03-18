@@ -1,3 +1,4 @@
+require('dotenv').config();
 const Discord = require('discord.js');
 const emojis = require('./config/emojis.json')
 const mysql = require('mysql');
@@ -11,12 +12,11 @@ const client = new Client({
       Intents.FLAGS.DIRECT_MESSAGES
     ] 
   });
-const dbconf = require('./conf.d/mysql.json')
 const db = mysql.createConnection({
-  host     : dbconf.host,
-  user     : dbconf.username,
-  password : dbconf.pass,
-  database : dbconf.db
+  host     : process.env.mysql_host,
+  user     : process.env.mysql_username,
+  password : process.env.mysql_pass,
+  database : process.env.mysql_database
 });
 
 client.on('ready', () => {
@@ -200,6 +200,12 @@ function clearOldWarns() {
   
   setInterval(clearOldWarns, 3600000);
   
+function nuevoTicket(userId){
+  const serverId = '905124554303762552';
+  const channelId = '1015309508777615360';
+  const channel = client.guilds.cache.get(serverId).channels.cache.get(channelId);
 
-
-client.login(require('./conf.d/secret.json').token);
+  channel.send('El usuario con ID de Discord `'+userId+ '` ha creado un nuevo ticket. \nPuedes revisarlo en https://logikk.galnod.com/staff/tickets');
+}
+module.exports.nuevoTicket = nuevoTicket
+client.login(process.env.discord_token);

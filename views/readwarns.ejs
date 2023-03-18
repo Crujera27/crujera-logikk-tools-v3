@@ -46,25 +46,25 @@
 </head>
 <body>
   <nav class="navbar navbar-expand-md navbar-dark bg-dark fixed-top">
-    <a class="navbar-brand" href="">Logikk's Dashboard</a>
+    <a class="navbar-brand" href="/">Logikk's Dashboard</a>
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse" id="navbarCollapse">
       <ul class="navbar-nav mr-auto">
-        <li class="nav-item">
-          <a class="nav-link" href="/"></a>
-        </li>
         <% if (user.isStaff) { %>
           <li class="nav-item">
-            <a class="nav-link" href="/staff"></a>
+            <a class="nav-link" href="/staff">Staff</a>
           </li>
         <% } %>
         <li class="nav-item">
-          <a class="nav-link" href="/warns"></a>
+          <a class="nav-link" href="/warns">Mis warns</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="/tickets"></a>
+          <a class="nav-link" href="/tickets">Tickets</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/support">Soporte</a>
         </li>
       </ul>
       <ul class="navbar-nav ml-auto">
@@ -82,9 +82,49 @@
 &nbsp
 <body>
   <div class="container mt-5">
-    <h1>Cuenta suspendida</h1>
-    <p>Esta cuenta se encuentra actualmente suspendida indefinidamente por incumplir nuestros Términos de Servicios. No hay forma de apelar esta sanción.</p>
-  </div>
+    <h1>Advertencias pendientes de lectura</h1>
+  
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Nivel</th>
+          <th>Razón</th>
+          <th>Fecha</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% for (let i = 0; i < warns.length; i++) { %>
+          <tr>
+            <td><%= warns[i].id %></td>
+            <td><%= warns[i].level %></td>
+            <td><%= warns[i].reason %></td>
+            <td><%= warns[i].timestamp %></td>
+          </tr>
+        <% } %>
+      </tbody>
+    </table>
+  
+    <div class="form-group mt-3">
+      <input type="checkbox" name="accept" value="1" id="accept-checkbox">
+      <label for="accept-checkbox">He releído y acepto las normas del Discord, Términos de Servicio y Política de privacidad</label>
+    </div>
+  
+    <button type="button" class="btn btn-primary mt-3" id="continue-btn" disabled>Reactivar cuenta</button>
+  
+    <script>
+      const acceptCheckbox = document.getElementById('accept-checkbox');
+      const continueBtn = document.getElementById('continue-btn');
+      
+      acceptCheckbox.addEventListener('change', () => {
+        continueBtn.disabled = !acceptCheckbox.checked;
+      });
+      
+      continueBtn.addEventListener('click', () => {
+        window.location.href = '/reactivar';
+      });
+    </script>
+  </div>  
   <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNVeG6w" crossorigin="anonymous"></script>
   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
@@ -148,3 +188,4 @@
       background-color: #333;
       color: #fff;
     }
+</style>

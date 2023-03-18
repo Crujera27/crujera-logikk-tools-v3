@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Logikk's Dashboard</title>
+  <title>Logikk's Dashboard - Mis tickets</title>
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
   <link href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
   <style>
@@ -63,6 +63,9 @@
         <li class="nav-item">
           <a class="nav-link" href="/tickets">Tickets</a>
         </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/support">Soporte</a>
+        </li>
       </ul>
       <ul class="navbar-nav ml-auto">
         <li class="nav-item dropdown">
@@ -76,13 +79,13 @@
       </ul>
     </div>
   </nav>
-    <h1>Mis tickets</h1>
+  <div class="container mt-5">
     <h1>Mis tickets</h1>
     <table>
       <thead>
         <tr>
-          <th>ID</th>
-          <th>Título</th>
+          <th>ID del ticket</th>
+          <th>Categoría</th>
           <th>Información</th>
           <th>Fecha de creación</th>
           <th>Última actualización</th>
@@ -95,14 +98,14 @@
           <tr>
             <td><%= ticket.id %></td>
             <td><%= ticket.title %></td>
-            <td><%= ticket.description %></td>
+            <td class="categoria"><%= ticket.description %></td>
             <td><%= ticket.createdAt.toLocaleString() %></td>
             <td><%= ticket.updatedAt.toLocaleString() %></td>
             <td>
               <% if (ticket.status === 'abierto') { %>
-                <span style="color: yellow">Aguardando revisión</span>
-              <% } else if (ticket.status === 'en progreso') { %>
                 <span style="color: green">Aceptado</span>
+              <% } else if (ticket.status === 'en progreso') { %>
+                <span style="color: yellow">Aguardando revisión</span>
               <% } else { %>
                 <span style="color: red">Denegado</span>
               <% } %>
@@ -117,8 +120,14 @@
         </table>
       </div>
 </html>
-    
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNVeG6w" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>    
 <style>
+      .categoria {
+  max-width: 200px; 
+  word-wrap: break-word; 
+}
     body {
       background-color: #222;
       color: #fff;

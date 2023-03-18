@@ -46,33 +46,26 @@
 </head>
 <body>
   <nav class="navbar navbar-expand-md navbar-dark bg-dark fixed-top">
-    <a class="navbar-brand" href="">Logikk's Dashboard</a>
+    <a class="navbar-brand" href="/">Logikk's Dashboard</a>
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse" id="navbarCollapse">
       <ul class="navbar-nav mr-auto">
         <li class="nav-item">
-          <a class="nav-link" href="/"></a>
-        </li>
-        <% if (user.isStaff) { %>
-          <li class="nav-item">
-            <a class="nav-link" href="/staff"></a>
-          </li>
-        <% } %>
-        <li class="nav-item">
-          <a class="nav-link" href="/warns"></a>
+          <a class="nav-link" href="/staff/addwarn">Insinuar nuevo warn</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="/tickets"></a>
+          <a class="nav-link" href="/staff/tickets">Tickets</a>
         </li>
       </ul>
       <ul class="navbar-nav ml-auto">
         <li class="nav-item dropdown">
           <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
             <%= user.username %>#<%= user.discriminator %></i>
-          </a>
+          </a>      
           <div class="dropdown-menu dropdown-menu-right" aria-labelledby="userDropdown">
+            <a class="dropdown-item" href="/dash">Salir del modo administración</a>
             <a class="dropdown-item" href="/logout">Cerrar sesión</a>
           </div>
         </li>
@@ -82,12 +75,32 @@
 &nbsp
 <body>
   <div class="container mt-5">
-    <h1>Cuenta suspendida</h1>
-    <p>Esta cuenta se encuentra actualmente suspendida indefinidamente por incumplir nuestros Términos de Servicios. No hay forma de apelar esta sanción.</p>
-  </div>
-  <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNVeG6w" crossorigin="anonymous"></script>
-  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+    <p>Rellene el formulario para insinuar un nuevo warn al usuario, recuerda adjuntar las pruebas en su respectivo canal con su respectivo formato.</p>
+  
+    <form method="POST" action="/staff/system/addwarn">
+      <div class="form-group">
+        <label for="staffid">ID del staff: </label>
+        <input type="text" class="form-control" id="staffID" name="staffID" value="<%= user.discord_id %>" readonly>
+      </div>
+      <div class="form-group">
+        <label for="userId">ID del usuario:</label>
+        <input type="text" class="form-control" id="userId" name="userId" required>
+      </div>
+      <div class="form-group">
+        <label for="reason">Razón:</label>
+        <input type="text" class="form-control" id="reason" name="reason" required>
+      </div>
+      <div class="form-group">
+        <label for="level">Nivel:</label>
+        <select class="form-control" id="level" name="level">
+          <option value="leve">Leve</option>
+          <option value="medio">Medio</option>
+          <option value="grave">Grave</option>
+        </select>
+      </div>
+      <button type="submit" class="btn btn-primary">Insinuar warn</button>
+    </form>
+  </div>  
 </body>
 </html>
 <style>
@@ -148,3 +161,4 @@
       background-color: #333;
       color: #fff;
     }
+</style>

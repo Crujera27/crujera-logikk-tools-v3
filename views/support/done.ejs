@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Logikk's Dashboard</title>
+  <title>Logikk's Dashboard - Solicitud de soporte enviada</title>
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
   <link href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
   <style>
@@ -46,25 +46,25 @@
 </head>
 <body>
   <nav class="navbar navbar-expand-md navbar-dark bg-dark fixed-top">
-    <a class="navbar-brand" href="">Logikk's Dashboard</a>
+    <a class="navbar-brand" href="/">Logikk's Dashboard</a>
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse" id="navbarCollapse">
       <ul class="navbar-nav mr-auto">
-        <li class="nav-item">
-          <a class="nav-link" href="/"></a>
-        </li>
         <% if (user.isStaff) { %>
           <li class="nav-item">
-            <a class="nav-link" href="/staff"></a>
+            <a class="nav-link" href="/staff">Staff</a>
           </li>
         <% } %>
         <li class="nav-item">
-          <a class="nav-link" href="/warns"></a>
+          <a class="nav-link" href="/warns">Mis warns</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="/tickets"></a>
+          <a class="nav-link" href="/tickets">Tickets</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/support">Soporte</a>
         </li>
       </ul>
       <ul class="navbar-nav ml-auto">
@@ -82,8 +82,8 @@
 &nbsp
 <body>
   <div class="container mt-5">
-    <h1>Cuenta suspendida</h1>
-    <p>Esta cuenta se encuentra actualmente suspendida indefinidamente por incumplir nuestros Términos de Servicios. No hay forma de apelar esta sanción.</p>
+    <p>Tu solicitud de soporte ha sido correctamente enviada, revisa el apartado de tickets para consultar el estado de tu petición.</p>
+    <p>Por favor, ten en cuenta que puede tardar un plazo máximo de 72 horas en ser revisado en caso de que haya mucha saturación en el sistema.</p>
   </div>
   <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNVeG6w" crossorigin="anonymous"></script>
@@ -148,3 +148,4 @@
       background-color: #333;
       color: #fff;
     }
+</style>
