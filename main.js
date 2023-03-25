@@ -82,7 +82,7 @@ client.on('message', message => {
           // Determinamos si se debe aplicar un warn y de qué grado
           let applyWarn = true;
           let banMessage = '';
-          if (warnLevel === 'leve' && warnCount.leve >= 3) {
+          if (warnLevel === 'leve' && warnCount.leve >= 2) {
             warnLevel = 'medio';
             applyWarn = false;
             banMessage = emojis.warn+` | **${user.tag}** ha superado el máximo de warns leve. Este debería de ser aislado temporalmente y aplicarle un warn medio de acuerdo con la normativa vigente.`;
@@ -90,7 +90,7 @@ client.on('message', message => {
               if (err) throw err;
               console.log(`Se han eliminado 3 warns leves de ${user.username}.`);
             });
-          } else if (warnLevel === 'medio' && warnCount.medio >= 3) {
+          } else if (warnLevel === 'medio' && warnCount.medio >= 2) {
             warnLevel = 'grave';
             applyWarn = false;
             banMessage = emojis.warn+` | **${user.tag}** ha superado el máximo de warns medios. Este debería de ser aislado temporalmente y aplicarle un warn grave de acuerdo con la normativa vigente.`;
@@ -98,7 +98,7 @@ client.on('message', message => {
               if (err) throw err;
               console.log(`Se han eliminado 3 warns medios de ${user.username}.`);
             });
-        } else if (warnLevel === 'grave' && warnCount.grave >= 3) {
+        } else if (warnLevel === 'grave' && warnCount.grave >= 2) {
             applyWarn = false;
             banMessage = emojis.warn` | **${user.tag}** debe de ser baneado por superar la cantidad máxima de warns graves. (*Todos sus datos ya han sido eliminados*)`;
             db.query(`DELETE FROM warns WHERE user_id = '${user.id}'`, (err) => {
@@ -160,12 +160,35 @@ client.on('message', message => {
               .setColor("#0099ff")
               message.channel.send({ embeds: [embed] })
           }
-      });
-          }
-          
-      
+        })
+      }/*else if (message.content.startsWith('lt!ban')) {
+        const member = message.mentions.members.first() || message.guild.members.cache.get(args[0]);
+        if (!member) {
+          return message.reply('Por favor mencione un usuario válido');
+        }
+        // Pedir razón al moderador
+        const filter = m => m.author.id === message.author.id;
+        const reasonEmbed = new Discord.MessageEmbed()
+          .setTitle('Razón del baneo')
+          .setDescription('Por favor, proporcione una razón para el baneo.');
+         message.author.send(reasonEmbed);
+        const collected =  message.author.dmChannel
+        const reason = collected.first().content;
     
-      })
+        // Enviar mensaje de DM al usuario
+        const userEmbed = new Discord.MessageEmbed()
+          .setTitle('Baneado')
+          .setDescription(`Has sido baneado del servidor por la siguiente razón: ${reason} \nSi cree que podría ser un error, puede apelar en https://logikk.galnod.com/support`);
+         member.send(userEmbed).catch(err => console.log(`No se pudo enviar DM al usuario  ${member.user.tag}`));
+    
+        // Banear usuario y registrar en el canal de registro de baneos
+        const modEmbed = new Discord.MessageEmbed()
+          .setTitle('Usuario baneado')
+          .setDescription(`**Usuario baneado:** ${member.user.tag} (${member.user.id})\n**Moderador:** ${message.author.tag}\n**Razón:** ${reason}`);
+         message.channel.send(modEmbed);
+        member.ban({ reason: `${reason} (Moderador: ${message.author.tag})` }).catch(err => console.log(err));
+      }*/
+    })
 
 
 function clearOldWarns() {

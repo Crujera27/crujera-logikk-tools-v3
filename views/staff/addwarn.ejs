@@ -1,80 +1,11 @@
 <!DOCTYPE html>
 <html>
-<head>
-  <title>Logikk's Dashboard</title>
-  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
-  <link href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
-  <style>
-    .navbar {
-      background-color: #2c3e50;
-      font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-      border-radius: 0;
-    }
-
-    .navbar-brand, .navbar-nav .nav-link {
-      color: #fff !important;
-      font-size: 20px;
-    }
-
-    .navbar-brand:hover, .navbar-nav .nav-link:hover {
-      color: #ff0 !important;
-    }
-
-    .navbar-toggler {
-      border-color: #fff;
-    }
-
-    .navbar-toggler-icon {
-      color: #fff;
-    }
-
-    .dropdown-menu-right {
-      right: 0;
-      left: auto;
-    }
-
-    .dropdown-item {
-      color: #333;
-      font-size: 16px;
-    }
-
-    .dropdown-item:hover {
-      background-color: #eee;
-      color: #333;
-    }
-  </style>
-</head>
-<body>
-  <nav class="navbar navbar-expand-md navbar-dark bg-dark fixed-top">
-    <a class="navbar-brand" href="/">Logikk's Dashboard</a>
-    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="collapse navbar-collapse" id="navbarCollapse">
-      <ul class="navbar-nav mr-auto">
-        <li class="nav-item">
-          <a class="nav-link" href="/staff/addwarn">Insinuar nuevo warn</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="/staff/tickets">Tickets</a>
-        </li>
-      </ul>
-      <ul class="navbar-nav ml-auto">
-        <li class="nav-item dropdown">
-          <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-            <%= user.username %>#<%= user.discriminator %></i>
-          </a>      
-          <div class="dropdown-menu dropdown-menu-right" aria-labelledby="userDropdown">
-            <a class="dropdown-item" href="/dash">Salir del modo administración</a>
-            <a class="dropdown-item" href="/logout">Cerrar sesión</a>
-          </div>
-        </li>
-      </ul>
-    </div>
-  </nav>
+<%- include('./inc/nav.ejs') %>
+<title>Logikk's Dashboard - Añadir Warn</title>
 &nbsp
 <body>
   <div class="container mt-5">
+    <div class="alert alert-danger">El sistema de warnear por la web está en fase de pruebas y puede contener muchos errores, le recomendamos utilizar el sistema de warns del Discord.</div>
     <p>Rellene el formulario para insinuar un nuevo warn al usuario, recuerda adjuntar las pruebas en su respectivo canal con su respectivo formato.</p>
   
     <form method="POST" action="/staff/system/addwarn">
@@ -98,11 +29,24 @@
           <option value="grave">Grave</option>
         </select>
       </div>
-      <button type="submit" class="btn btn-primary">Insinuar warn</button>
+      <div class="form-group mt-3">
+        <input type="checkbox" name="accept" value="1" id="accept-checkbox">
+        <label for="accept-checkbox">He sido autorizado por un superior a insinuar un warn mediante esta forma.</label>
+      </div>
+    
+      <button type="submit" class="btn btn-primary mt-3" id="continue-btn" disabled>Insinuar warn</button>
     </form>
   </div>  
 </body>
 </html>
+<script>
+  const acceptCheckbox = document.getElementById('accept-checkbox');
+  const continueBtn = document.getElementById('continue-btn');
+  
+  acceptCheckbox.addEventListener('change', () => {
+    continueBtn.disabled = !acceptCheckbox.checked;
+  });
+</script>
 <style>
     body {
       background-color: #222;

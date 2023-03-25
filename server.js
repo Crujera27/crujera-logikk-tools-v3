@@ -61,7 +61,7 @@ app.use(execInAllRoutesExcept(["/", "/legal", "/legal/privacidad", "/legal/tos",
     const isBanned = results[0].banned === 1;
 
     if (isBanned) {
-      return res.render('not-approved', {
+      return res.render('punishments/not-approved', {
         user: req.user,
     });
     } else {
@@ -81,13 +81,12 @@ app.use(execInAllRoutesExcept(["/", "/legal", "/legal/privacidad", "/legal/tos",
 
     const hasUnreadWarns = results.length > 0;
     if (hasUnreadWarns) {
-      return res.render('readwarns', { warns: results, user: req.user });
+      return res.render('punishments/readwarns', { warns: results, user: req.user });
     } else {
       next();
     }
   });
 }));
-
 
 
 
@@ -270,56 +269,56 @@ app.post('/support/enviado', (req, res) => {
   console.log('ID: '+userId+' ID de categoría: '+category+' Notas adicionales: '+notes)
   if(category=="1"){
     db.query(
-      "INSERT INTO tickets (title, description, status, userId) VALUES (?, ?, ?, ?)",
-      ["Presentar una apelación formal en relación a un ban que me ha sido aplicado de manera incorrecta.", notes, "en progreso", req.user.id],
+      "INSERT INTO tickets (title, description, status, userId, discord_id) VALUES (?, ?, ?, ?, ?)",
+      ["Presentar una apelación formal en relación a un ban que me ha sido aplicado de manera incorrecta.", notes, "en progreso", req.user.id, req.user.discord_id],
       function (error, results, fields) {
         if (error) throw error;
       }
     );
   }else if(category=="2"){
     db.query(
-      "INSERT INTO tickets (title, description, status, userId) VALUES (?, ?, ?, ?)",
-      ["Presentar una apelación formal en relación a un warn leve que me ha sido aplicado de manera incorrecta.", notes, "en progreso", req.user.id],
+      "INSERT INTO tickets (title, description, status, userId, discord_id) VALUES (?, ?, ?, ?, ?)",
+      ["Presentar una apelación formal en relación a un warn leve que me ha sido aplicado de manera incorrecta.", notes, "en progreso", req.user.id, req.user.discord_id],
       function (error, results, fields) {
         if (error) throw error;
       }
     );
   }else if(category=="3"){
     db.query(
-      "INSERT INTO tickets (title, description, status, userId) VALUES (?, ?, ?, ?)",
-      ["Presentar una apelación formal en relación a un warn medio que me ha sido aplicado de manera incorrecta.", notes, "en progreso", req.user.id],
+      "INSERT INTO tickets (title, description, status, userId, discord_id) VALUES (?, ?, ?, ?, ?)",
+      ["Presentar una apelación formal en relación a un warn medio que me ha sido aplicado de manera incorrecta.", notes, "en progreso", req.user.id, req.user.discord_id],
       function (error, results, fields) {
         if (error) throw error;
       }
     );
 }else if(category=="4"){
   db.query(
-    "INSERT INTO tickets (title, description, status, userId) VALUES (?, ?, ?, ?)",
-    ["Presentar una apelación formal en relación a un warn grave que me ha sido aplicado de manera incorrecta.", notes, "en progreso", req.user.id],
+    "INSERT INTO tickets (title, description, status, userId, discord_id) VALUES (?, ?, ?, ?, ?)",
+    ["Presentar una apelación formal en relación a un warn grave que me ha sido aplicado de manera incorrecta.", notes, "en progreso", req.user.id, req.user.discord_id],
     function (error, results, fields) {
       if (error) throw error;
     }
   );
 }else if(category=="5"){
   db.query(
-    "INSERT INTO tickets (title, description, status, userId) VALUES (?, ?, ?, ?)",
-    ["Presentar una apelación formal en relación a un timeout que me ha sido aplicado de manera incorrecta.", notes, "en progreso", req.user.id],
+    "INSERT INTO tickets (title, description, status, userId, discord_id) VALUES (?, ?, ?, ?, ?)",
+    ["Presentar una apelación formal en relación a un timeout que me ha sido aplicado de manera incorrecta.", notes, "en progreso", req.user.id, req.user.discord_id],
     function (error, results, fields) {
       if (error) throw error;
     }
   );
 }else if(category=="6"){
   db.query(
-    "INSERT INTO tickets (title, description, status, userId) VALUES (?, ?, ?, ?)",
-    ["Presentar una apelación formal en relación a un warn medio que me ha sido aplicado de manera incorrecta.", notes, "en progreso", req.user.id],
+    "INSERT INTO tickets (title, description, status, userId, discord_id) VALUES (?, ?, ?, ?, ?)",
+    ["Presentar una apelación formal en relación a un warn medio que me ha sido aplicado de manera incorrecta.", notes, "en progreso", req.user.id, req.user.discord_id],
     function (error, results, fields) {
       if (error) throw error;
     }
   );
 }else if(category=="7"){
   db.query(
-    "INSERT INTO tickets (title, description, status, userId) VALUES (?, ?, ?, ?)",
-    ["Solicitar formalmente la eliminación de toda mi información del sistema y mi suspensión indefinida de este mismo.", notes, "en progreso", req.user.id],
+    "INSERT INTO tickets (title, description, status, userId, discord_id) VALUES (?, ?, ?, ?,?)",
+    ["Solicitar formalmente la eliminación de toda mi información del sistema y mi suspensión indefinida de este mismo.", notes, "en progreso", req.user.id, req.user.discord_id],
     function (error, results, fields) {
       if (error) throw error;
     }
@@ -346,7 +345,7 @@ require('./main').nuevoTicket(req.user.discord_id)
         return res.redirect('/auth/discord')
     }
   });
-  const staffIds = ['451765453988298764', 'id2', 'id3'];
+  const staffIds = process.env.staffs_ids.split(',');
 
   function isStaff(req, res, next) {
     if (staffIds.includes(req.user.discord_id)) {
@@ -382,7 +381,7 @@ require('./main').nuevoTicket(req.user.discord_id)
       if (isStaff(req, res)) {
         connection.query("SELECT * FROM tickets WHERE status = 'en progreso'", (error, results, fields) => {
           if (error) throw error;
-          return res.render('staff/ticketlist', {user: req.user, tickets: results});
+          return res.render('staff/ticketlist', {user: req.user, tickets: results, noti: req.query.noti});
         });
       } else {
         return res.status(403).send('No tienes permisos para acceder a esta página.');
@@ -414,7 +413,7 @@ app.post('/staff/tickets/:id/update-status', (req, res) => {
   // actualiza el estado del ticket en la base de datos
   connection.query('UPDATE tickets SET status = ? WHERE id = ?', [status, id], (error, results, fields) => {
     if (error) throw error;
-    res.redirect('/staff/tickets');
+    res.redirect('/staff/tickets?noti=done');
   });
   });
   
@@ -423,7 +422,7 @@ app.post('/staff/tickets/:id/update-status', (req, res) => {
   const id = req.params.id;
   changeTicketStatus(id, 'abierto')
   .then(() => {
-  res.redirect('/staff/tickets');
+  res.redirect('/staff/tickets?noti=done');
   })
   .catch((error) => {
   console.error(error);
@@ -436,7 +435,7 @@ app.post('/staff/tickets/:id/update-status', (req, res) => {
   const id = req.params.id;
   changeTicketStatus(id, 'cerrado')
   .then(() => {
-  res.redirect('/staff/tickets');
+  res.redirect('/staff/tickets?noti=done');
   })
   .catch((error) => {
   console.error(error);
