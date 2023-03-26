@@ -208,7 +208,7 @@ client.on('messageCreate', message => {
         },
         {
           type: 'BUTTON',
-          label: 'Warn Grave',
+          label: 'Falso positivo',
           style: 'PRIMARY',
           customId: 'falsopositivo'+message.id
         }        
