@@ -168,8 +168,8 @@ client.on('message', message => {
       }*/
     })
 //Automod handler
-const automodconf = require('./config/automod.json')
 client.on('messageCreate', message => {
+  const automodconf = require('./config/automod.json')
   const badWords = ["aberrante", "abominable", "anormal", "asqueroso", "aterrador", "bestia", "cobarde", "cochino", "corrupto", "desagradable", "desalmado", "despreciable", "diabólico", "doloroso", "egoísta", "enfermo", "envidioso", "estafador", "estúpido", "feo", "fétido", "falso", "grosero", "gruñón", "herético", "hipócrita", "horrible", "idiota", "ignorante", "incompetente", "indeciso", "indeseable", "indignante", "infame", "inmoral", "insensible", "intolerante", "irrespetuoso", "ladrón", "lastimoso", "lamentable", "lento", "macabro", "malcriado", "malvado", "mediocre", "mentiroso", "miedoso", "miserable", "monstruoso", "nefasto", "negativo", "nervioso", "noctámbulo", "obsceno", "odioso", "ofensivo", "perverso", "prepotente", "putrefacto", "repugnante", "resentido", "ridículo", "ruin", "sádico", "sinvergüenza", "soberbio", "sucio", "tacaño", "temeroso", "tenebroso", "terrible", "tonto", "traicionero", "tramposo", "turbio", "vergonzoso", "vil", "violento", "zafio", "zarrapastroso", "zopenco", "zurdo", "pelotudo", "idiota", "imbécil", "gil", "boludo", "maricón", "pendejo", "cagón", "culiado", "huevón", "huevudo", "huevonazo", "guevón", "guevonada", "chuchaqui", "borracho", "alcohólico", "vago", "flojo", "mamerto", "malparido", "hijueputa", "puta", "puto", "culeado", "pajero", "masturbador", "asqueroso", "inmundo", "desgraciado", "maldito", "mierda", "cabrón", "pendejada", "jodido", "perra", "perrero", "cabeza de chorlito", "retardado", "anormal", "cabestro", "conchetumadre", "malnacido", "estúpido", "retrasado", "imbécil", "pajúa", "cagapalos", "malparido", "mierdero", "zorra", "váyanse al carajo", "mejor mueran", "mamagüevo", "malcojido", "cagado", "chupamedias", "malnacido", "cagada", "culicagado", "charlatán", "arrastrado", "patán", "sinvergüenza", "ladronzuelo", "estafador", "charlatán", "farolero", "payaso", "estúpido", "hueso", "tontolculo", "charlatán", "mentiroso", "sinvergüenza", "pérfido", "traidor", "golfo", "deshonesto", "ruin", "desleal", "farsante", "mentecato", "zopenco", "imbécil", "necio", "papanatas", "cretino", "nabo", "gilipollas", "pelma", "plasta", "caradura", "cínico", "hipócrita", "falso", "envidioso", "mentiroso", "calumniador", "difamador", "malintencionado", "agorero", "profeta de desgracias", "matón", "brutal", "cruel", "desalmado", "sádico", "bestia", "despiadado", "insensible", "inclemente", "traumatizado", "ass", "bitch", "bastard", "shit", "crap", "damn", "fuck", "hell", "piss", "dick", "cock", "pussy", "cunt", "twat", "douche", "jerk", "prick", "wanker", "dipshit", "idiot", "moron", "stupid", "retard", "lunatic", "psycho", "crazy", "nuts", "maniac", "baldy", "fatty", "ugly", "chicken", "asshole", "motherfucker", "son of a bitch", "whore", "slut", "skank", "hoe", "tramp", "cum", "shithead", "cockblocker", "asshat", "dumbass", "dumbfuck", "shitbag", "scumbag", "jackass", "sucker", "dickhead", "twatwaffle", "bitchface", "fuckwit", "fuckface", "shitforbrains", "shitstain", "buttface", "douchebag", "cockbite", "knobhead", "dickweed", "dingleberry", "piss off", "bugger off", "bloody", "bollocks", "wanker", "git", "tosser", "naff off", "sod off", "arsehole", "shite", "fanny", "knob", "minger", "prat", "numpty", "plonker", "wazzock", "gobshite", "chav", "bellend", "minge", "cack", "turd", "fart", "shart", "boob", "tits", "nipples", "balls", "schlong", "boner", "clit", "vagina", "labia", "muff", "arse", "butt", "booty", "tush", "crapola", "bollocks", "dagnabbit"]
   if (message.author.bot || !message.guild) return;
 
@@ -241,10 +241,11 @@ client.on('messageCreate', message => {
 });
 // Handle button clickss
 client.on('interactionCreate', async interaction => {
+  const automodconf = require('./config/automod.json')
   if (!interaction.isButton()) return;
   const [rows] = await db.promise().query(`SELECT * FROM automod_queue`);
   const buttonId = interaction.customId;
-  const matchingRow = rows.find(row => buttonId === `warn_level_button${row.message_id}`) || rows.find(row => buttonId === `warn_medio_button${row.message_id}`) || rows.find(row => buttonId === `warn_grave_button${row.message_id}`);
+  const matchingRow = rows.find(row => buttonId === `warn_level_button${row.message_id}`) || rows.find(row => buttonId === `warn_medio_button${row.message_id}`) || rows.find(row => buttonId === `warn_grave_button${row.message_id}`) ||  rows.find(row => buttonId === `falsopositivo${row.message_id}`)
   if (!matchingRow) return;
   if (buttonId === `warn_level_button${matchingRow.message_id}`) {  
     const [rows2] = await db.promise().query(`SELECT * FROM automod_queue WHERE warn_level_interaction_id = ?`, [buttonId]);
@@ -254,7 +255,7 @@ client.on('interactionCreate', async interaction => {
     }
   
     const matchingRow = rows2[0];
-    const logchannel = client.guilds.cache.get(automodconf.guild).channels.cache.get(automodconf.id)
+    const logchannel = client.guilds.cache.get(automodconf.guild).channels.cache.get(automodconf.log)
     const log = new Discord.MessageEmbed()
     .setColor('#ff0000')
     .setTitle('Logikk\'s Tools | Sanción Aplicada vía automod')
@@ -280,7 +281,7 @@ client.on('interactionCreate', async interaction => {
       return;
     }
       const matchingRow = rows2[0];
-      const logchannel = client.guilds.cache.get(automodconf.guild).channels.cache.get(automodconf.id)
+      const logchannel = client.guilds.cache.get(automodconf.guild).channels.cache.get(automodconf.log)
       const log = new Discord.MessageEmbed()
       .setColor('#ff0000')
       .setTitle('Logikk\'s Tools | Sanción Aplicada vía automod')
@@ -306,7 +307,7 @@ client.on('interactionCreate', async interaction => {
       return;
     }
       const matchingRow = rows2[0];
-      const logchannel = client.guilds.cache.get(automodconf.guild).channels.cache.get(automodconf.id)
+      const logchannel = client.guilds.cache.get(automodconf.guild).channels.cache.get(automodconf.log)
       const log = new Discord.MessageEmbed()
       .setColor('#ff0000')
       .setTitle('Logikk\'s Tools | Sanción Aplicada vía automod')
@@ -324,8 +325,14 @@ client.on('interactionCreate', async interaction => {
       const msg = await interaction.channel.messages.fetch(matchingRow.message_id)
       if (msg) {
       msg.delete();
-    }else if (buttonId === `falsopositivo${matchingRow.message_id}`){
-      const logchannel = client.guilds.cache.get(automodconf.guild).channels.cache.get(automodconf.id)
+    }}
+    else if (buttonId === `falsopositivo${matchingRow.message_id}`){
+      const [rows2] = await db.promise().query(`SELECT * FROM automod_queue WHERE falsopositivo_interaction_id = ?`, [buttonId]);
+    if (rows2.length === 0) {
+      console.error(`No row found with warn_grave_interaction_id = ${buttonId}`);
+      return;
+    }
+      const logchannel = client.guilds.cache.get(automodconf.guild).channels.cache.get(automodconf.log)
       const log = new Discord.MessageEmbed()
       .setColor('#ff0000')
       .setTitle('Logikk\'s Tools | Alertas del automod')
@@ -333,18 +340,13 @@ client.on('interactionCreate', async interaction => {
       logchannel.send({ embeds: [log]})
       const msg = await interaction.channel.messages.fetch(matchingRow.message_id)
       msg.reactions.removeAll()
-      interaction.reply('✅ | Se ha marcado la alerta como **Falso positivo**')
-      .then(message => {
-      setTimeout(() => {
-      message.delete();
+      interaction.reply({ content: '✅ | Se ha marcado la alerta como **Falso positivo**', ephemeral: true });
       interaction.message.delete()
-      }, 3000);
-    })
   } else {
     console.error(`No conozco el botón con ID: ${interaction.customId}`);
     return;
   }
-}})
+})
 
 
 
