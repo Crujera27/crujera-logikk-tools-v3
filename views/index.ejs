@@ -5,6 +5,12 @@
 &nbsp
 <body>
   <div class="container mt-5">
+    <% if (status === 'total') { %>
+      <div class="alert alert-danger">Actualmente, hay una interrupción total del servicio. La aplicación no funcionará como lo esperado. Por favor venga más tarde.</div>
+    <% } %>
+    <% if (status === 'parcial') { %>
+      <div class="alert alert-warning">Actualmente, hay una interrupción parcial del servicio. La aplicación puede funcionará como lo esperado.</div>
+    <% } %>
     <h1>Bienvenido, <%= user.username %>#<%= user.discriminator %></h1>
     <p>Puedes utilizar la barra superior para navegar por esta APP.</p>
   </div>

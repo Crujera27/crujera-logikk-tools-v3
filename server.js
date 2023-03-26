@@ -6,7 +6,6 @@ const mysql = require('mysql');
 const { createProxyMiddleware } = require('http-proxy-middleware');
 const path = require('path');
 const bodyParser = require('body-parser')
-// Crear una conexión a la base de datos MySQL
 const db = mysql.createConnection({
   host     : process.env.mysql_host,
   user     : process.env.mysql_username,
@@ -22,11 +21,8 @@ const sequelize = new Sequelize(process.env.mysql_database, process.env.mysql_us
 });
 
 module.exports.sequelize = sequelize;
-// Crear una aplicación de Express
 const app = express();
 app.set('view engine', 'ejs');
-
-// Configurar la sesión de Express
 app.use(session({
   secret: process.env.web_loginsecret,
   resave: false,
@@ -34,7 +30,6 @@ app.use(session({
 }));
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }))
-// Inicializar Passport y configurar la estrategia de Discord
 app.use(passport.initialize());
 app.use(passport.session());
 const execInAllRoutesExcept = (exceptRoutes, middleware) => {
@@ -234,10 +229,14 @@ app.get('/', (req, res) => {
   });
   }
 });
+
 app.get('/dash', (req, res) => {
   if (req.isAuthenticated()) {
+    const appstatus = require('./main').getservicedisruptionge
+    console.log(appstatus)
     res.render('index', {
       user: req.user,
+      status: appstatus,
   });
   } else {
     res.redirect('/auth/discord');
