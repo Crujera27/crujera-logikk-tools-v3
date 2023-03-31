@@ -236,7 +236,7 @@ client.on('messageCreate', message => {
         }
       );
     }
-    message.react('1089508318415962242');
+    //message.react('1089508318415962242');
   }
 });
 // Handle button clickss
@@ -270,10 +270,14 @@ client.on('interactionCreate', async interaction => {
     interaction.message.delete();
     db.promise().query(`DELETE FROM automod_queue WHERE id = ?`, [matchingRow.id]);
     addwarn(interaction.guild.members.cache.get(matchingRow.message_author), 'leve', 'Uso de lenguaje inapropiado y/o promoción de contenido inadecuado hacia ciertos grupos de personas.', interaction.channel, interaction.guild, interaction.user.id, true)
-    const msg = await interaction.channel.messages.fetch(matchingRow.message_id)
+    const msg = await interaction.channel.messages.fetch(matchingRow.message_id);
     if (msg) {
-    msg.delete();
+      msg.delete().catch((error) => {
+        console.error(`Error deleting message: ${error}`);
+        interaction.reply({ content: ':x: | No he podido eliminar el mensaje del usuario.', ephemeral: true });
+      });
     }
+    
   } else if (buttonId === `warn_medio_button${matchingRow.message_id}`) {
     const [rows2] = await db.promise().query(`SELECT * FROM automod_queue WHERE warn_medio_interaction_id = ?`, [buttonId]);
     if (rows2.length === 0) {
@@ -298,7 +302,10 @@ client.on('interactionCreate', async interaction => {
       addwarn(interaction.guild.members.cache.get(matchingRow.message_author), 'medio', 'Uso de lenguaje inapropiado y/o promoción de contenido inadecuado hacia ciertos grupos de personas.', interaction.channel, interaction.guild, interaction.user.id, true)
       const msg = await interaction.channel.messages.fetch(matchingRow.message_id)
       if (msg) {
-      msg.delete();
+        msg.delete().catch((error) => {
+          console.error(`Error deleting message: ${error}`);
+          interaction.reply({ content: ':x: | No he podido eliminar el mensaje del usuario.', ephemeral: true });
+        });
       }
   } else if (buttonId === `warn_grave_button${matchingRow.message_id}`) {
     const [rows2] = await db.promise().query(`SELECT * FROM automod_queue WHERE warn_grave_interaction_id = ?`, [buttonId]);
@@ -324,12 +331,15 @@ client.on('interactionCreate', async interaction => {
       addwarn(interaction.guild.members.cache.get(matchingRow.message_author), 'grave', 'Uso de lenguaje inapropiado y/o promoción de contenido inadecuado hacia ciertos grupos de personas.', interaction.channel, interaction.guild, interaction.user.id, true)
       const msg = await interaction.channel.messages.fetch(matchingRow.message_id)
       if (msg) {
-      msg.delete();
-    }}
+        msg.delete().catch((error) => {
+          console.error(`Error deleting message: ${error}`);
+          interaction.reply({ content: ':x: | No he podido eliminar el mensaje del usuario.', ephemeral: true });
+        });
+      }}
     else if (buttonId === `falsopositivo${matchingRow.message_id}`){
       const [rows2] = await db.promise().query(`SELECT * FROM automod_queue WHERE falsopositivo_interaction_id = ?`, [buttonId]);
     if (rows2.length === 0) {
-      console.error(`No row found with warn_grave_interaction_id = ${buttonId}`);
+      console.error(`No row found with falsopositivo_interaction_id = ${buttonId}`);
       return;
     }
       const logchannel = client.guilds.cache.get(automodconf.guild).channels.cache.get(automodconf.log)
@@ -338,8 +348,6 @@ client.on('interactionCreate', async interaction => {
       .setTitle('Logikk\'s Tools | Alertas del automod')
       .setDescription(`ID: **${matchingRow.id}**\nModerador: **<@${interaction.user.id}>(${interaction.user.id})**\nConclusión: **Falso positivo**\nUsuario: **<@${matchingRow.message_author}>(${matchingRow.message_author})**\nContenido del mensaje:\n\n\`\`\`\n${matchingRow.message_content}\n\`\`\``)
       logchannel.send({ embeds: [log]})
-      const msg = await interaction.channel.messages.fetch(matchingRow.message_id)
-      msg.reactions.removeAll()
       interaction.reply({ content: '✅ | Se ha marcado la alerta como **Falso positivo**', ephemeral: true });
       interaction.message.delete()
   } else {
@@ -347,7 +355,6 @@ client.on('interactionCreate', async interaction => {
     return;
   }
 })
-
 
 
 
