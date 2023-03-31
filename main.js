@@ -101,7 +101,7 @@ client.on('message', message => {
               }
     const args = message.content.trim().split(/ +/g);
     const user = message.mentions.users.first();
-    const user_id = user ? user.id : args[1];
+    const user_id = user ? user : args[1];
 
     if (!user_id) {
       return message.reply('Debes proporcionar la ID de un usuario.');
@@ -162,7 +162,7 @@ client.on('message', message => {
         // Banear usuario y registrar en el canal de registro de baneos
         const modEmbed = new Discord.MessageEmbed()
           .setTitle('Usuario baneado')
-          .setDescription(`**Usuario baneado:** ${member.user.tag} (${member.user.id})\n**Moderador:** ${message.author.tag}\n**Razón:** ${reason}`);
+          .setDescription(`**Usuario baneado:** ${member.user.tag} (${member.user})\n**Moderador:** ${message.author.tag}\n**Razón:** ${reason}`);
          message.channel.send(modEmbed);
         member.ban({ reason: `${reason} (Moderador: ${message.author.tag})` }).catch(err => console.log(err));
       }*/
@@ -175,18 +175,21 @@ client.on('messageCreate', message => {
 
   // Check if message contains any bad words
   const messageContent = message.content.toLowerCase();
-  const containsBadWord = badWords.some(word => messageContent.includes(word));
+    let flaggedWord = '';
+    const containsBadWord = badWords.some(word => {
+    if (messageContent.includes(word)) {
+      flaggedWord = word;
+      return true;
+    }
+  });
 
   if (containsBadWord) {
-    // Send a notification message in a specific channel
     const channel = message.guild.channels.cache.get(automodconf.alertas);
     if (channel) {
       const embed = new Discord.MessageEmbed()
         .setColor('#ff0000')
-        .setTitle('Logikk\'s Tools | AutoMod')
-        .setDescription(`Autor: **${message.author.tag}**(${message.author.id})\n Contenido:`+"```"+`\n${message.content}`+"```")
-      
-      // Store interaction IDs in database while inserting flagged message into automod_queue table
+        .setTitle('Logikk\'s Tools | AutoMod - Alertas de bad words')
+        .setDescription(`Autor: **${message.author.tag}**(${message.author.id})\nPalabra filtrada: **${flaggedWord}**\nCanal: <#${message.channel.id}>\n **[${"Click para ir al mensaje"}](https://discord.com/channels/${message.guild.id}/${message.channel.id}/${message.id})** \n\nContenido:`+"```"+`\n${message.content}`+"```")
       const components = [
         {
           type: 'BUTTON',
@@ -219,8 +222,8 @@ client.on('messageCreate', message => {
       const warnGraveInteractionId = components[2].customId
       const falsopositivoId = components[3].customId
 
-      db.query(`INSERT INTO automod_queue (message_content, message_author, user_name, discriminator, message_id, warn_level_interaction_id, warn_medio_interaction_id, warn_grave_interaction_id, falsopositivo_interaction_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`, 
-        [message.content, message.author.id, message.author.username, message.author.discriminator, message.id, warnLevelInteractionId, warnMedioInteractionId, warnGraveInteractionId, falsopositivoId],
+      db.query(`INSERT INTO automod_queue (message_content, message_author, user_name, discriminator, message_id, warn_level_interaction_id, warn_medio_interaction_id, warn_grave_interaction_id, falsopositivo_interaction_id, channel_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`, 
+        [message.content, message.author.id, message.author.username, message.author.discriminator, message.id, warnLevelInteractionId, warnMedioInteractionId, warnGraveInteractionId, falsopositivoId, message.channel.id],
         (err, results) => {
           if (err) {
             console.error(err);
@@ -250,7 +253,7 @@ client.on('interactionCreate', async interaction => {
   if (buttonId === `warn_level_button${matchingRow.message_id}`) {  
     const [rows2] = await db.promise().query(`SELECT * FROM automod_queue WHERE warn_level_interaction_id = ?`, [buttonId]);
     if (rows2.length === 0) {
-      console.error(`No row found with warn_level_interaction_id = ${buttonId}`);
+      console.error(`No row | warn_level_interaction_id = ${buttonId}`);
       return;
     }
   
@@ -259,25 +262,18 @@ client.on('interactionCreate', async interaction => {
     const log = new Discord.MessageEmbed()
     .setColor('#ff0000')
     .setTitle('Logikk\'s Tools | Sanción Aplicada vía automod')
-    .setDescription(`ID: **${matchingRow.id}**\nModerador: **<@${interaction.user.id}>(${interaction.user.id})**\nSanción: **Warn Leve**\nUsuario: **<@${matchingRow.message_author}>(${matchingRow.message_author})**\nContenido del mensaje:\n\n\`\`\`\n${matchingRow.message_content}\n\`\`\``)
+    .setDescription(`ID: **${matchingRow.id}**\nModerador: **<@${interaction.user}>(${interaction.user})**\nSanción: **Warn Leve**\nUsuario: **<@${matchingRow.message_author}>(${matchingRow.message_author})**\nContenido del mensaje:\n\n\`\`\`\n${matchingRow.message_content}\n\`\`\``)
     logchannel.send({ embeds: [log]})
     const user = await client.users.fetch(matchingRow.message_author);
     const embed = new Discord.MessageEmbed()
       .setColor('#ff0000')
       .setTitle('Mensaje de la moderación de Logikk\'s Discord')
-      .setDescription('```\nEstimado/a usuario/a,\n\nPor medio del presente comunicado, nos dirigimos a usted para informarle que nuestros moderadores han evaluado su comportamiento en el servidor de Discord y han determinado que ha incumplido con las normativas establecidas en nuestra comunidad.\n\nPor consiguiente, nos vemos en la obligación de aplicarle una sanción en nuestro sistema, en cumplimiento de nuestros protocolos de seguridad y convivencia en línea. Es importante que tenga en cuenta que estas medidas se aplican con el objetivo de garantizar un ambiente de respeto y tolerancia entre todos los miembros de nuestra comunidad.\n\nLe recomendamos revisar detenidamente las normativas del servidor para evitar futuras sanciones y contribuir a mantener un espacio seguro y amigable para todos los usuarios. Si tiene alguna duda o desea apelar esta sanción, por favor no dude en ponerse en contacto con nuestro equipo de moderación.\n\nAgradecemos su comprensión y cooperación en este asunto.\n\nAtentamente,\nEl equipo de moderación de Logikk\'s Discord```\n\nInformación respecto a la sanción aplicada:\n\nSanción: **Warn Leve**\n\nModerador: <@'+interaction.user.id+'>\n\nContenido ofensivo:\n```\n'+matchingRow.message_content+'\n```\n\nPuedes encontrar una lista completa de tus warns en: https://logikk.galnod.com/warns')
+      .setDescription('```\nEstimado/a usuario/a,\n\nPor medio del presente comunicado, nos dirigimos a usted para informarle que nuestros moderadores han evaluado su comportamiento en el servidor de Discord y han determinado que ha incumplido con las normativas establecidas en nuestra comunidad.\n\nPor consiguiente, nos vemos en la obligación de aplicarle una sanción en nuestro sistema, en cumplimiento de nuestros protocolos de seguridad y convivencia en línea. Es importante que tenga en cuenta que estas medidas se aplican con el objetivo de garantizar un ambiente de respeto y tolerancia entre todos los miembros de nuestra comunidad.\n\nLe recomendamos revisar detenidamente las normativas del servidor para evitar futuras sanciones y contribuir a mantener un espacio seguro y amigable para todos los usuarios. Si tiene alguna duda o desea apelar esta sanción, por favor no dude en ponerse en contacto con nuestro equipo de moderación.\n\nAgradecemos su comprensión y cooperación en este asunto.\n\nAtentamente,\nEl equipo de moderación de Logikk\'s Discord```\n\nInformación respecto a la sanción aplicada:\n\nSanción: **Warn Leve**\n\nModerador: <@'+interaction.user+'>\n\nContenido ofensivo:\n```\n'+matchingRow.message_content+'\n```\n\nPuedes encontrar una lista completa de tus warns en: https://logikk.galnod.com/warns')
     user.send({ embeds: [embed] });
     interaction.message.delete();
     db.promise().query(`DELETE FROM automod_queue WHERE id = ?`, [matchingRow.id]);
-    addwarn(interaction.guild.members.cache.get(matchingRow.message_author), 'leve', 'Uso de lenguaje inapropiado y/o promoción de contenido inadecuado hacia ciertos grupos de personas.', interaction.channel, interaction.guild, interaction.user.id, true)
-    const msg = await interaction.channel.messages.fetch(matchingRow.message_id);
-    if (msg) {
-      msg.delete().catch((error) => {
-        console.error(`Error deleting message: ${error}`);
-        interaction.reply({ content: ':x: | No he podido eliminar el mensaje del usuario.', ephemeral: true });
-      });
-    }
-    
+    addwarn(interaction.guild.members.cache.get(matchingRow.message_author), 'leve', 'Uso de lenguaje inapropiado y/o promoción de contenido inadecuado hacia ciertos grupos de personas.', interaction.channel, interaction.guild, interaction.user, true)
+    client.guilds.cache.get(interaction.guild.id).channels.cache.get(matchingRow.channel_id)?.messages.fetch(matchingRow.message_id)?.then(msg => msg.delete()).catch(() => console.error("El mensaje no se ha encontrado (Mnessage no borrado)"));
   } else if (buttonId === `warn_medio_button${matchingRow.message_id}`) {
     const [rows2] = await db.promise().query(`SELECT * FROM automod_queue WHERE warn_medio_interaction_id = ?`, [buttonId]);
     if (rows2.length === 0) {
@@ -289,24 +285,18 @@ client.on('interactionCreate', async interaction => {
       const log = new Discord.MessageEmbed()
       .setColor('#ff0000')
       .setTitle('Logikk\'s Tools | Sanción Aplicada vía automod')
-      .setDescription(`ID: **${matchingRow.id}**\nModerador: **<@${interaction.user.id}>(${interaction.user.id})**\nSanción: **Warn Medio**\nUsuario: **<@${matchingRow.message_author}>(${matchingRow.message_author})**\nContenido del mensaje:\n\n\`\`\`\n${matchingRow.message_content}\n\`\`\``)
+      .setDescription(`ID: **${matchingRow.id}**\nModerador: **<@${interaction.user}>(${interaction.user})**\nSanción: **Warn Medio**\nUsuario: **<@${matchingRow.message_author}>(${matchingRow.message_author})**\nContenido del mensaje:\n\n\`\`\`\n${matchingRow.message_content}\n\`\`\``)
       logchannel.send({ embeds: [log]})
       const user = await client.users.fetch(matchingRow.message_author);
       const embed = new Discord.MessageEmbed()
         .setColor('#ff0000')
         .setTitle('Mensaje de la moderación de Logikk\'s Discord')
-        .setDescription('```\nEstimado/a usuario/a,\n\nPor medio del presente comunicado, nos dirigimos a usted para informarle que nuestros moderadores han evaluado su comportamiento en el servidor de Discord y han determinado que ha incumplido con las normativas establecidas en nuestra comunidad.\n\nPor consiguiente, nos vemos en la obligación de aplicarle una sanción en nuestro sistema, en cumplimiento de nuestros protocolos de seguridad y convivencia en línea. Es importante que tenga en cuenta que estas medidas se aplican con el objetivo de garantizar un ambiente de respeto y tolerancia entre todos los miembros de nuestra comunidad.\n\nLe recomendamos revisar detenidamente las normativas del servidor para evitar futuras sanciones y contribuir a mantener un espacio seguro y amigable para todos los usuarios. Si tiene alguna duda o desea apelar esta sanción, por favor no dude en ponerse en contacto con nuestro equipo de moderación.\n\nAgradecemos su comprensión y cooperación en este asunto.\n\nAtentamente,\nEl equipo de moderación de Logikk\'s Discord```\n\nInformación respecto a la sanción aplicada:\n\nSanción: **Warn Medio**\n\nModerador: <@'+interaction.user.id+'>\n\nContenido ofensivo:\n```\n'+matchingRow.message_content+'\n```\n\nPuedes encontrar una lista completa de tus warns en: https://logikk.galnod.com/warns')
+        .setDescription('```\nEstimado/a usuario/a,\n\nPor medio del presente comunicado, nos dirigimos a usted para informarle que nuestros moderadores han evaluado su comportamiento en el servidor de Discord y han determinado que ha incumplido con las normativas establecidas en nuestra comunidad.\n\nPor consiguiente, nos vemos en la obligación de aplicarle una sanción en nuestro sistema, en cumplimiento de nuestros protocolos de seguridad y convivencia en línea. Es importante que tenga en cuenta que estas medidas se aplican con el objetivo de garantizar un ambiente de respeto y tolerancia entre todos los miembros de nuestra comunidad.\n\nLe recomendamos revisar detenidamente las normativas del servidor para evitar futuras sanciones y contribuir a mantener un espacio seguro y amigable para todos los usuarios. Si tiene alguna duda o desea apelar esta sanción, por favor no dude en ponerse en contacto con nuestro equipo de moderación.\n\nAgradecemos su comprensión y cooperación en este asunto.\n\nAtentamente,\nEl equipo de moderación de Logikk\'s Discord```\n\nInformación respecto a la sanción aplicada:\n\nSanción: **Warn Medio**\n\nModerador: <@'+interaction.user+'>\n\nContenido ofensivo:\n```\n'+matchingRow.message_content+'\n```\n\nPuedes encontrar una lista completa de tus warns en: https://logikk.galnod.com/warns')
       user.send({ embeds: [embed] });
       interaction.message.delete();
       db.promise().query(`DELETE FROM automod_queue WHERE id = ?`, [matchingRow.id]);
-      addwarn(interaction.guild.members.cache.get(matchingRow.message_author), 'medio', 'Uso de lenguaje inapropiado y/o promoción de contenido inadecuado hacia ciertos grupos de personas.', interaction.channel, interaction.guild, interaction.user.id, true)
-      const msg = await interaction.channel.messages.fetch(matchingRow.message_id)
-      if (msg) {
-        msg.delete().catch((error) => {
-          console.error(`Error deleting message: ${error}`);
-          interaction.reply({ content: ':x: | No he podido eliminar el mensaje del usuario.', ephemeral: true });
-        });
-      }
+      addwarn(interaction.guild.members.cache.get(matchingRow.message_author), 'medio', 'Uso de lenguaje inapropiado y/o promoción de contenido inadecuado hacia ciertos grupos de personas.', interaction.channel, interaction.guild, interaction.user, true)
+      client.guilds.cache.get(interaction.guild.id).channels.cache.get(matchingRow.channel_id)?.messages.fetch(matchingRow.message_id)?.then(msg => msg.delete()).catch(() => console.error("El mensaje no se ha encontrado (Mnessage no borrado)"));
   } else if (buttonId === `warn_grave_button${matchingRow.message_id}`) {
     const [rows2] = await db.promise().query(`SELECT * FROM automod_queue WHERE warn_grave_interaction_id = ?`, [buttonId]);
     if (rows2.length === 0) {
@@ -318,24 +308,19 @@ client.on('interactionCreate', async interaction => {
       const log = new Discord.MessageEmbed()
       .setColor('#ff0000')
       .setTitle('Logikk\'s Tools | Sanción Aplicada vía automod')
-      .setDescription(`ID: **${matchingRow.id}**\nModerador: **<@${interaction.user.id}>(${interaction.user.id})**\nSanción: **Warn Grave**\nUsuario: **<@${matchingRow.message_author}>(${matchingRow.message_author})**\nContenido del mensaje:\n\n\`\`\`\n${matchingRow.message_content}\n\`\`\``)
+      .setDescription(`ID: **${matchingRow.id}**\nModerador: **<@${interaction.user}>(${interaction.user})**\nSanción: **Warn Grave**\nUsuario: **<@${matchingRow.message_author}>(${matchingRow.message_author})**\nContenido del mensaje:\n\n\`\`\`\n${matchingRow.message_content}\n\`\`\``)
       logchannel.send({ embeds: [log]})
       const user = await client.users.fetch(matchingRow.message_author);
       const embed = new Discord.MessageEmbed()
         .setColor('#ff0000')
         .setTitle('Mensaje de la moderación de Logikk\'s Discord')
-        .setDescription('```\nEstimado/a usuario/a,\n\nPor medio del presente comunicado, nos dirigimos a usted para informarle que nuestros moderadores han evaluado su comportamiento en el servidor de Discord y han determinado que ha incumplido con las normativas establecidas en nuestra comunidad.\n\nPor consiguiente, nos vemos en la obligación de aplicarle una sanción en nuestro sistema, en cumplimiento de nuestros protocolos de seguridad y convivencia en línea. Es importante que tenga en cuenta que estas medidas se aplican con el objetivo de garantizar un ambiente de respeto y tolerancia entre todos los miembros de nuestra comunidad.\n\nLe recomendamos revisar detenidamente las normativas del servidor para evitar futuras sanciones y contribuir a mantener un espacio seguro y amigable para todos los usuarios. Si tiene alguna duda o desea apelar esta sanción, por favor no dude en ponerse en contacto con nuestro equipo de moderación.\n\nAgradecemos su comprensión y cooperación en este asunto.\n\nAtentamente,\nEl equipo de moderación de Logikk\'s Discord```\n\nInformación respecto a la sanción aplicada:\n\nSanción: **Warn Grave**\n\nModerador: <@'+interaction.user.id+'>\n\nContenido ofensivo:\n```\n'+matchingRow.message_content+'\n```\n\nPuedes encontrar una lista completa de tus warns en: https://logikk.galnod.com/warns')
+        .setDescription('```\nEstimado/a usuario/a,\n\nPor medio del presente comunicado, nos dirigimos a usted para informarle que nuestros moderadores han evaluado su comportamiento en el servidor de Discord y han determinado que ha incumplido con las normativas establecidas en nuestra comunidad.\n\nPor consiguiente, nos vemos en la obligación de aplicarle una sanción en nuestro sistema, en cumplimiento de nuestros protocolos de seguridad y convivencia en línea. Es importante que tenga en cuenta que estas medidas se aplican con el objetivo de garantizar un ambiente de respeto y tolerancia entre todos los miembros de nuestra comunidad.\n\nLe recomendamos revisar detenidamente las normativas del servidor para evitar futuras sanciones y contribuir a mantener un espacio seguro y amigable para todos los usuarios. Si tiene alguna duda o desea apelar esta sanción, por favor no dude en ponerse en contacto con nuestro equipo de moderación.\n\nAgradecemos su comprensión y cooperación en este asunto.\n\nAtentamente,\nEl equipo de moderación de Logikk\'s Discord```\n\nInformación respecto a la sanción aplicada:\n\nSanción: **Warn Grave**\n\nModerador: <@'+interaction.user+'>\n\nContenido ofensivo:\n```\n'+matchingRow.message_content+'\n```\n\nPuedes encontrar una lista completa de tus warns en: https://logikk.galnod.com/warns')
       user.send({ embeds: [embed] });
       interaction.message.delete();
       db.promise().query(`DELETE FROM automod_queue WHERE id = ?`, [matchingRow.id]);
-      addwarn(interaction.guild.members.cache.get(matchingRow.message_author), 'grave', 'Uso de lenguaje inapropiado y/o promoción de contenido inadecuado hacia ciertos grupos de personas.', interaction.channel, interaction.guild, interaction.user.id, true)
-      const msg = await interaction.channel.messages.fetch(matchingRow.message_id)
-      if (msg) {
-        msg.delete().catch((error) => {
-          console.error(`Error deleting message: ${error}`);
-          interaction.reply({ content: ':x: | No he podido eliminar el mensaje del usuario.', ephemeral: true });
-        });
-      }}
+      addwarn(interaction.guild.members.cache.get(matchingRow.message_author), 'grave', 'Uso de lenguaje inapropiado y/o promoción de contenido inadecuado hacia ciertos grupos de personas.', interaction.channel, interaction.guild, interaction.user, true)
+      client.guilds.cache.get(interaction.guild.id).channels.cache.get(matchingRow.channel_id)?.messages.fetch(matchingRow.message_id)?.then(msg => msg.delete()).catch(() => console.error("El mensaje no se ha encontrado (Mnessage no borrado)"));
+      }
     else if (buttonId === `falsopositivo${matchingRow.message_id}`){
       const [rows2] = await db.promise().query(`SELECT * FROM automod_queue WHERE falsopositivo_interaction_id = ?`, [buttonId]);
     if (rows2.length === 0) {
@@ -346,7 +331,7 @@ client.on('interactionCreate', async interaction => {
       const log = new Discord.MessageEmbed()
       .setColor('#ff0000')
       .setTitle('Logikk\'s Tools | Alertas del automod')
-      .setDescription(`ID: **${matchingRow.id}**\nModerador: **<@${interaction.user.id}>(${interaction.user.id})**\nConclusión: **Falso positivo**\nUsuario: **<@${matchingRow.message_author}>(${matchingRow.message_author})**\nContenido del mensaje:\n\n\`\`\`\n${matchingRow.message_content}\n\`\`\``)
+      .setDescription(`ID: **${matchingRow.id}**\nModerador: **<@${interaction.user}>(${interaction.user})**\nConclusión: **Falso positivo**\nUsuario: **<@${matchingRow.message_author}>(${matchingRow.message_author})**\nContenido del mensaje:\n\n\`\`\`\n${matchingRow.message_content}\n\`\`\``)
       logchannel.send({ embeds: [log]})
       interaction.reply({ content: '✅ | Se ha marcado la alerta como **Falso positivo**', ephemeral: true });
       interaction.message.delete()
@@ -372,7 +357,7 @@ function addwarn(user, nivel, reason, channel, guild, modid, deletemessage){
       grave: 0
     };
 
-    if (rows.length > 0) {
+    if (rows && rows.length > 0) {
       rows.forEach(row => {
         warnCount[row.level]++;
       });
@@ -388,27 +373,35 @@ function addwarn(user, nivel, reason, channel, guild, modid, deletemessage){
       db.query(`DELETE FROM warns WHERE user_id = '${user.id}' AND level = 'leve' LIMIT 3`, (err) => {
         if (err) throw err;
         console.log(`Se han eliminado 3 warns leves de ${user.id}.`);
+        if(deletemessage==false){
         addwarn(user, 'medio', 'Acumular un total de 3 warns leves (Último warn leve: '+reason+' ) - Autoinsinuado por automod', channel, guild, modid)
+        }else{
+          addwarn(user, 'medio', 'Acumular un total de 3 warns leves (Último warn leve: '+reason+' ) - Autoinsinuado por automod', channel, guild, modid, true)
+        }
       });
     } else if (warnLevel === 'medio' && warnCount.medio >= 2) {
       warnLevel = 'grave';
       applyWarn = false;
       banMessage = emojis.warn+` | **<@${user.id}>**(${user.id}) ha superado el máximo de warns medios. Este debería de ser aislado temporalmente.`;
-      db.query(`DELETE FROM warns WHERE user_id = '${user.id}' AND level = 'medio' LIMIT 3`, (err) => {
+      db.query(`DELETE FROM warns WHERE user_id = '${user}' AND level = 'medio' LIMIT 3`, (err) => {
         if (err) throw err;
         console.log(`Se han eliminado 3 warns medios de ${user.id}.`);
+        if(deletemessage==false){
         addwarn(user, 'grave', 'Acumular un total de 3 warns medios (Último warn medio: '+reason+' ) - Autoinsinuado por automod', channel, guild, modid)
+        }else{
+          addwarn(user, 'medio', 'Acumular un total de 3 warns leves (Último warn leve: '+reason+' ) - Autoinsinuado por automod', channel, guild, modid, true)
+        }
       });
   } else if (warnLevel === 'grave' && warnCount.grave >= 2) {
       applyWarn = false;
       banMessage = emojis.warn` | **<@${user.id}>**(${user.id})  debe de ser baneado por superar la cantidad máxima de warns graves. (*Todos sus datos ya han sido eliminados*)`;
-      db.query(`DELETE FROM warns WHERE user_id = '${user.id}'`, (err) => {
+      db.query(`DELETE FROM warns WHERE user_id = '${user}'`, (err) => {
           if (err) throw err;
           console.log(`Se han eliminado todos los warns de ${user.id}.`);
           if (guild && guild.member) {
-              const member = guild.members.cache.get(user.id);
+              const member = guild.members.cache.get(user);
             member.ban({reason: "Máximo de warns graves superados"})
-              .then(() => console.log(`Usuario ${user.username} baneado`))
+              .then(() => console.log(`Usuario ${user.id} baneado`))
               .catch(console.error);
           } else {
             console.error("No se pudo obtener el objeto member para banear al usuario");
@@ -437,7 +430,7 @@ function addwarn(user, nivel, reason, channel, guild, modid, deletemessage){
       if(deletemessage==true){
       setTimeout(() => {
       message.delete();
-      }, 5000);
+      }, 8000);
     }
       });
     }
