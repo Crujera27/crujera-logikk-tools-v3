@@ -262,7 +262,7 @@ client.on('interactionCreate', async interaction => {
     const log = new Discord.MessageEmbed()
     .setColor('#ff0000')
     .setTitle('Logikk\'s Tools | Sanción Aplicada vía automod')
-    .setDescription(`ID: **${matchingRow.id}**\nModerador: **<@${interaction.user}>(${interaction.user})**\nSanción: **Warn Leve**\nUsuario: **<@${matchingRow.message_author}>(${matchingRow.message_author})**\nContenido del mensaje:\n\n\`\`\`\n${matchingRow.message_content}\n\`\`\``)
+    .setDescription(`ID: **${matchingRow.id}**\nModerador: **<@${interaction.user}>(${interaction.user.id})**\nSanción: **Warn Leve**\nUsuario: **<@${matchingRow.message_author}>(${matchingRow.message_author})**\nContenido del mensaje:\n\n\`\`\`\n${matchingRow.message_content}\n\`\`\``)
     logchannel.send({ embeds: [log]})
     const user = await client.users.fetch(matchingRow.message_author);
     const embed = new Discord.MessageEmbed()
@@ -272,7 +272,7 @@ client.on('interactionCreate', async interaction => {
     user.send({ embeds: [embed] });
     interaction.message.delete();
     db.promise().query(`DELETE FROM automod_queue WHERE id = ?`, [matchingRow.id]);
-    addwarn(interaction.guild.members.cache.get(matchingRow.message_author), 'leve', 'Uso de lenguaje inapropiado y/o promoción de contenido inadecuado hacia ciertos grupos de personas.', interaction.channel, interaction.guild, interaction.user, true)
+    addwarn(interaction.guild.members.cache.get(matchingRow.message_author), 'leve', 'Uso de lenguaje inapropiado y/o promoción de contenido inadecuado hacia ciertos grupos de personas.', interaction.channel, interaction.guild, interaction.user.id, true)
     client.guilds.cache.get(interaction.guild.id).channels.cache.get(matchingRow.channel_id)?.messages.fetch(matchingRow.message_id)?.then(msg => msg.delete()).catch(() => console.error("El mensaje no se ha encontrado (Mnessage no borrado)"));
   } else if (buttonId === `warn_medio_button${matchingRow.message_id}`) {
     const [rows2] = await db.promise().query(`SELECT * FROM automod_queue WHERE warn_medio_interaction_id = ?`, [buttonId]);
@@ -285,7 +285,7 @@ client.on('interactionCreate', async interaction => {
       const log = new Discord.MessageEmbed()
       .setColor('#ff0000')
       .setTitle('Logikk\'s Tools | Sanción Aplicada vía automod')
-      .setDescription(`ID: **${matchingRow.id}**\nModerador: **<@${interaction.user}>(${interaction.user})**\nSanción: **Warn Medio**\nUsuario: **<@${matchingRow.message_author}>(${matchingRow.message_author})**\nContenido del mensaje:\n\n\`\`\`\n${matchingRow.message_content}\n\`\`\``)
+      .setDescription(`ID: **${matchingRow.id}**\nModerador: **<@${interaction.user}>(${interaction.user.id})**\nSanción: **Warn Medio**\nUsuario: **<@${matchingRow.message_author}>(${matchingRow.message_author})**\nContenido del mensaje:\n\n\`\`\`\n${matchingRow.message_content}\n\`\`\``)
       logchannel.send({ embeds: [log]})
       const user = await client.users.fetch(matchingRow.message_author);
       const embed = new Discord.MessageEmbed()
@@ -295,7 +295,7 @@ client.on('interactionCreate', async interaction => {
       user.send({ embeds: [embed] });
       interaction.message.delete();
       db.promise().query(`DELETE FROM automod_queue WHERE id = ?`, [matchingRow.id]);
-      addwarn(interaction.guild.members.cache.get(matchingRow.message_author), 'medio', 'Uso de lenguaje inapropiado y/o promoción de contenido inadecuado hacia ciertos grupos de personas.', interaction.channel, interaction.guild, interaction.user, true)
+      addwarn(interaction.guild.members.cache.get(matchingRow.message_author), 'medio', 'Uso de lenguaje inapropiado y/o promoción de contenido inadecuado hacia ciertos grupos de personas.', interaction.channel, interaction.guild, interaction.user.id, true)
       client.guilds.cache.get(interaction.guild.id).channels.cache.get(matchingRow.channel_id)?.messages.fetch(matchingRow.message_id)?.then(msg => msg.delete()).catch(() => console.error("El mensaje no se ha encontrado (Mnessage no borrado)"));
   } else if (buttonId === `warn_grave_button${matchingRow.message_id}`) {
     const [rows2] = await db.promise().query(`SELECT * FROM automod_queue WHERE warn_grave_interaction_id = ?`, [buttonId]);
@@ -308,7 +308,7 @@ client.on('interactionCreate', async interaction => {
       const log = new Discord.MessageEmbed()
       .setColor('#ff0000')
       .setTitle('Logikk\'s Tools | Sanción Aplicada vía automod')
-      .setDescription(`ID: **${matchingRow.id}**\nModerador: **<@${interaction.user}>(${interaction.user})**\nSanción: **Warn Grave**\nUsuario: **<@${matchingRow.message_author}>(${matchingRow.message_author})**\nContenido del mensaje:\n\n\`\`\`\n${matchingRow.message_content}\n\`\`\``)
+      .setDescription(`ID: **${matchingRow.id}**\nModerador: **<@${interaction.user}>(${interaction.user.id})**\nSanción: **Warn Grave**\nUsuario: **<@${matchingRow.message_author}>(${matchingRow.message_author})**\nContenido del mensaje:\n\n\`\`\`\n${matchingRow.message_content}\n\`\`\``)
       logchannel.send({ embeds: [log]})
       const user = await client.users.fetch(matchingRow.message_author);
       const embed = new Discord.MessageEmbed()
@@ -318,7 +318,7 @@ client.on('interactionCreate', async interaction => {
       user.send({ embeds: [embed] });
       interaction.message.delete();
       db.promise().query(`DELETE FROM automod_queue WHERE id = ?`, [matchingRow.id]);
-      addwarn(interaction.guild.members.cache.get(matchingRow.message_author), 'grave', 'Uso de lenguaje inapropiado y/o promoción de contenido inadecuado hacia ciertos grupos de personas.', interaction.channel, interaction.guild, interaction.user, true)
+      addwarn(interaction.guild.members.cache.get(matchingRow.message_author), 'grave', 'Uso de lenguaje inapropiado y/o promoción de contenido inadecuado hacia ciertos grupos de personas.', interaction.channel, interaction.guild, interaction.user.id, true)
       client.guilds.cache.get(interaction.guild.id).channels.cache.get(matchingRow.channel_id)?.messages.fetch(matchingRow.message_id)?.then(msg => msg.delete()).catch(() => console.error("El mensaje no se ha encontrado (Mnessage no borrado)"));
       }
     else if (buttonId === `falsopositivo${matchingRow.message_id}`){
@@ -331,7 +331,7 @@ client.on('interactionCreate', async interaction => {
       const log = new Discord.MessageEmbed()
       .setColor('#ff0000')
       .setTitle('Logikk\'s Tools | Alertas del automod')
-      .setDescription(`ID: **${matchingRow.id}**\nModerador: **<@${interaction.user}>(${interaction.user})**\nConclusión: **Falso positivo**\nUsuario: **<@${matchingRow.message_author}>(${matchingRow.message_author})**\nContenido del mensaje:\n\n\`\`\`\n${matchingRow.message_content}\n\`\`\``)
+      .setDescription(`ID: **${matchingRow.id}**\nModerador: **<@${interaction.user}>(${interaction.user.id})**\nConclusión: **Falso positivo**\nUsuario: **<@${matchingRow.message_author}>(${matchingRow.message_author})**\nContenido del mensaje:\n\n\`\`\`\n${matchingRow.message_content}\n\`\`\``)
       logchannel.send({ embeds: [log]})
       interaction.reply({ content: '✅ | Se ha marcado la alerta como **Falso positivo**', ephemeral: true });
       interaction.message.delete()
@@ -340,14 +340,47 @@ client.on('interactionCreate', async interaction => {
     return;
   }
 })
+/*
+function timeoutmember(user, time, mod, reason, deletemessage){
+
+  const usuario = user
+  const tiempo = time
+  const razon = reason
+
+
+  if(!interaction.guild.me.permissions.has("MODERATE_MEMBERS")) return interaction.reply(`No tengo permisos para esto.`)
+
+  if(!usuario) return interaction.reply(`${no} | No se ha encontrado al usuario.`)
+
+          if(usuario.id === '678268422156582919'){
+      return interaction.reply(`${no} | No puedo timeoutearme a mí mismo.`)
+  }
+
+          if(interaction.member.roles.highest.position <= usuario.roles.highest.position)
+  return interaction.reply(`${no} | El usuario mencionado tiene el mismo rango que tú o uno superior.`)
+
+  if(interaction.guild.me.roles.highest.position <= usuario.roles.highest.position)
+  return interaction.reply(`${no} | El usuario mencionado tiene un rango superior al mío.`)
 
 
 
+  const member = interaction.guild.members.fetch(usuario.user.id)
+  if(member.isCommunicationDisabled()) return interaction.reply(`${no} | El usuario ya estaba timeouteado.`)
+
+
+
+  const time = ms(tiempo)
+  if(!time){
+      return interaction.reply(`${no} | Debes introducir un tiempo válido. Ejemplo: 1d`)
+  }
+
+
+
+   member.timeout(time, razon).catch(err => interaction.reply(`Ha ocurrido un error: \n${err}`.replace("DiscordAPIError: Missing Permissions", `${no} Me faltan permisos para ejecutar esta acción.`)))  
+}
+*/
 function addwarn(user, nivel, reason, channel, guild, modid, deletemessage){
   let warnLevel = nivel
-  //'Uso de lenguaje inapropiado y/o promoción de contenido inadecuado hacia ciertos grupos de personas.'
-
-  // Comprobamos si el usuario ya tiene warns
   db.query(`SELECT * FROM warns WHERE user_id = '${user.id}'`, (err, rows) => {
     if (err) throw err;
 
@@ -363,7 +396,6 @@ function addwarn(user, nivel, reason, channel, guild, modid, deletemessage){
       });
     }
 
-    // Determinamos si se debe aplicar un warn y de qué grado
     let applyWarn = true;
     let banMessage = '';
     if (warnLevel === 'leve' && warnCount.leve >= 2) {
@@ -424,7 +456,6 @@ function addwarn(user, nivel, reason, channel, guild, modid, deletemessage){
 
       });
     } else {
-      // Si no se aplica el warn, se envía un mensaje de advertencia y se sugiere el baneo
       channel.send(banMessage)
       .then(message => {
       if(deletemessage==true){
@@ -471,11 +502,12 @@ function clearOldWarns() {
   setInterval(clearOldWarns, 3600000);
   
 function nuevoTicket(userId){
-  const serverId = '905124554303762552';
-  const channelId = '1015309508777615360';
+  const supportconf = require('./config/support.json')
+  const serverId = supportconf.supportServerId
+  const channelId = supportconf.supportChannId
   const channel = client.guilds.cache.get(serverId).channels.cache.get(channelId);
 
-  channel.send('El usuario con ID de Discord `'+userId+ '` ha creado un nuevo ticket. \nPuedes revisarlo en https://logikk.galnod.com/staff/tickets');
+  channel.send('El usuario con ID de Discord `'+userId+ '` ha creado un nuevo ticket de soporte en la web. \nPuedes revisarlo en https://logikk.galnod.com/staff/tickets');
 }
 
 
