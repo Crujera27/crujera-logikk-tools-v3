@@ -12,7 +12,7 @@ const client = new Client({
       Intents.FLAGS.DIRECT_MESSAGES
     ] 
   });
-const db = mysql.createConnection({
+const db = mysql.createPool({
   host     : process.env.mysql_host,
   user     : process.env.mysql_username,
   password : process.env.mysql_pass,

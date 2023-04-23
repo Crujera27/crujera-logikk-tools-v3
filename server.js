@@ -6,7 +6,7 @@ const mysql = require('mysql');
 const { createProxyMiddleware } = require('http-proxy-middleware');
 const path = require('path');
 const bodyParser = require('body-parser')
-const db = mysql.createConnection({
+const db = mysql.createPool({
   host     : process.env.mysql_host,
   user     : process.env.mysql_username,
   password : process.env.mysql_pass,
