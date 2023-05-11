@@ -4,6 +4,9 @@
 <title>Logikk's Dashboard - Mis tickets</title>
 &nbsp
   <div class="container mt-5">
+    <% if (typeof noti !== 'undefined' && noti === 'ticketsend') { %>
+      <div class="alert alert-success">Tu solicitud de soporte ha sido correctamente enviada, revisa el apartado de tickets para consultar el estado de tu petición. Por favor, ten en cuenta que puede tardar un plazo máximo de 72 horas en ser revisado en caso de que haya mucha saturación en el sistema.</div>
+    <% } %>
     <h1>Mis tickets</h1>
     <table>
       <thead>

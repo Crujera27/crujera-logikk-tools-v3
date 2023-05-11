@@ -262,7 +262,7 @@ client.on('interactionCreate', async interaction => {
     const log = new Discord.MessageEmbed()
     .setColor('#ff0000')
     .setTitle('Logikk\'s Tools | Sanción Aplicada vía automod')
-    .setDescription(`ID: **${matchingRow.id}**\nModerador: **<@${interaction.user}>(${interaction.user.id})**\nSanción: **Warn Leve**\nUsuario: **<@${matchingRow.message_author}>(${matchingRow.message_author})**\nContenido del mensaje:\n\n\`\`\`\n${matchingRow.message_content}\n\`\`\``)
+    .setDescription(`ID: **${matchingRow.id}**\nModerador: **${interaction.user}(${interaction.user.id})**\nSanción: **Warn Leve**\nUsuario: **<@${matchingRow.message_author}>(${matchingRow.message_author})**\nContenido del mensaje:\n\n\`\`\`\n${matchingRow.message_content}\n\`\`\``)
     logchannel.send({ embeds: [log]})
     const user = await client.users.fetch(matchingRow.message_author);
     const embed = new Discord.MessageEmbed()
@@ -285,7 +285,7 @@ client.on('interactionCreate', async interaction => {
       const log = new Discord.MessageEmbed()
       .setColor('#ff0000')
       .setTitle('Logikk\'s Tools | Sanción Aplicada vía automod')
-      .setDescription(`ID: **${matchingRow.id}**\nModerador: **<@${interaction.user}>(${interaction.user.id})**\nSanción: **Warn Medio**\nUsuario: **<@${matchingRow.message_author}>(${matchingRow.message_author})**\nContenido del mensaje:\n\n\`\`\`\n${matchingRow.message_content}\n\`\`\``)
+      .setDescription(`ID: **${matchingRow.id}**\nModerador: **${interaction.user}(${interaction.user.id})**\nSanción: **Warn Medio**\nUsuario: **<@${matchingRow.message_author}>(${matchingRow.message_author})**\nContenido del mensaje:\n\n\`\`\`\n${matchingRow.message_content}\n\`\`\``)
       logchannel.send({ embeds: [log]})
       const user = await client.users.fetch(matchingRow.message_author);
       const embed = new Discord.MessageEmbed()
@@ -308,7 +308,7 @@ client.on('interactionCreate', async interaction => {
       const log = new Discord.MessageEmbed()
       .setColor('#ff0000')
       .setTitle('Logikk\'s Tools | Sanción Aplicada vía automod')
-      .setDescription(`ID: **${matchingRow.id}**\nModerador: **<@${interaction.user}>(${interaction.user.id})**\nSanción: **Warn Grave**\nUsuario: **<@${matchingRow.message_author}>(${matchingRow.message_author})**\nContenido del mensaje:\n\n\`\`\`\n${matchingRow.message_content}\n\`\`\``)
+      .setDescription(`ID: **${matchingRow.id}**\nModerador: **${interaction.user}(${interaction.user.id})**\nSanción: **Warn Grave**\nUsuario: **<@${matchingRow.message_author}>(${matchingRow.message_author})**\nContenido del mensaje:\n\n\`\`\`\n${matchingRow.message_content}\n\`\`\``)
       logchannel.send({ embeds: [log]})
       const user = await client.users.fetch(matchingRow.message_author);
       const embed = new Discord.MessageEmbed()
@@ -331,7 +331,7 @@ client.on('interactionCreate', async interaction => {
       const log = new Discord.MessageEmbed()
       .setColor('#ff0000')
       .setTitle('Logikk\'s Tools | Alertas del automod')
-      .setDescription(`ID: **${matchingRow.id}**\nModerador: **<@${interaction.user}>(${interaction.user.id})**\nConclusión: **Falso positivo**\nUsuario: **<@${matchingRow.message_author}>(${matchingRow.message_author})**\nContenido del mensaje:\n\n\`\`\`\n${matchingRow.message_content}\n\`\`\``)
+      .setDescription(`ID: **${matchingRow.id}**\nModerador: **${interaction.user}(${interaction.user.id})**\nConclusión: **Falso positivo**\nUsuario: **<@${matchingRow.message_author}>(${matchingRow.message_author})**\nContenido del mensaje:\n\n\`\`\`\n${matchingRow.message_content}\n\`\`\``)
       logchannel.send({ embeds: [log]})
       interaction.reply({ content: '✅ | Se ha marcado la alerta como **Falso positivo**', ephemeral: true });
       interaction.message.delete()

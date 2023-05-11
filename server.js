@@ -160,7 +160,7 @@ app.get('/tickets', async (req, res) => {
     where: { userId: req.user.id },
     order: [['updatedAt', 'DESC']]
   });
-  res.render('tickets', { tickets, user: req.user });
+  res.render('tickets', { tickets, user: req.user, noti: req.query.noti });
 }else{
   return res.redirect('/auth/discord')}})
   const ticketController = require('./models/ticketController');
@@ -324,9 +324,7 @@ app.post('/support/enviado', (req, res) => {
   );
 }
 require('./main').nuevoTicket(req.user.discord_id)
-  res.render('support/done', {
-    user: req.user,
-});
+  return res.redirect('/tickets?noti=ticketsend')
   } else {
   res.redirect('/auth/discord');
 }
@@ -347,12 +345,18 @@ require('./main').nuevoTicket(req.user.discord_id)
   const staffIds = process.env.staffs_ids.split(',');
 
   function isStaff(req, res, next) {
-    if (staffIds.includes(req.user.discord_id)) {
+    const hasRole = require('./main').hasRole
+    const supportconf = require('./config/support.json')
+    runcheck()
+    async function runcheck() {
+      const test = await hasRole(supportconf.supportServerId, req.user.discord_id, supportconf.staffroleid);
+    console.log('return:'+test)
+    if (test == false) {
       return true;
     } else {
       return false
     }
-  }
+  }}
   
   // Staff controller
   app.get('/staff', (req, res) => {
