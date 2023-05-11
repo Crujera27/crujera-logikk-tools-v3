@@ -226,6 +226,7 @@ app.get('/', (req, res) => {
   } else {
     res.render('login', {
       user: req.user,
+      version: require('./package.json').version,
   });
   }
 });
