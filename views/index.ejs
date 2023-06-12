@@ -11,9 +11,12 @@
     <% if (status === 'parcial') { %>
       <div class="alert alert-warning">Actualmente, hay una interrupción parcial del servicio. La aplicación puede funcionará como lo esperado.</div>
     <% } %>
-    <h1>Bienvenido, <%= user.username %>#<%= user.discriminator %></h1>
-    <p>Puedes utilizar la barra superior para navegar por esta APP.</p>
-  </div>
+  <% if (error === '403') { %>
+  <div class="alert alert-danger">403 forbidden | El recurso que intenta acceder no está disponible a su nivel de permisos actual.</div>
+  <% } %>
+  <h1>Bienvenido, <%= user.username %>#<%= user.discriminator %></h1>
+  <p>Puedes utilizar la barra superior para navegar por esta APP.</p>
+</div>  
 </body>
 </html>
 <style>

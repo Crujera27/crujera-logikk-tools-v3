@@ -238,6 +238,7 @@ app.get('/dash', (req, res) => {
     res.render('index', {
       user: req.user,
       status: appstatus,
+      error: req.query.error,
   });
   } else {
     res.redirect('/auth/discord');
@@ -346,18 +347,15 @@ require('./main').nuevoTicket(req.user.discord_id)
   const staffIds = process.env.staffs_ids.split(',');
 
   function isStaff(req, res, next) {
-    const hasRole = require('./main').hasRole
     const supportconf = require('./config/support.json')
-    runcheck()
-    async function runcheck() {
-      const test = await hasRole(supportconf.supportServerId, req.user.discord_id, supportconf.staffroleid);
-    console.log('return:'+test)
-    if (test == false) {
+    let test = false
+    var staffIds = require('./config/staff.json').staff.split(',');
+    if (staffIds.includes(req.user.discord_id)) {
       return true;
     } else {
       return false
     }
-  }}
+  }
   
   // Staff controller
   app.get('/staff', (req, res) => {
@@ -365,7 +363,7 @@ require('./main').nuevoTicket(req.user.discord_id)
       if(isStaff(req, res)==true){
        return res.render('staff/staff', {user: req.user});
       }
-      return res.status(403).send('No tienes permisos para acceder a esta página.');
+      return res.redirect('/dash?error=403');
     }else{
         return res.redirect('/auth/discord')
     }
@@ -375,7 +373,7 @@ require('./main').nuevoTicket(req.user.discord_id)
       if(isStaff(req, res)==true){
       return res.render('staff/addwarn', {user: req.user});
       }
-      return res.status(403).send('No tienes permisos para acceder a esta página.');
+      return res.redirect('/dash?error=403');
     }else{
         return res.redirect('/auth/discord')
     }
@@ -388,7 +386,7 @@ require('./main').nuevoTicket(req.user.discord_id)
           return res.render('staff/ticketlist', {user: req.user, tickets: results, noti: req.query.noti});
         });
       } else {
-        return res.status(403).send('No tienes permisos para acceder a esta página.');
+        return res.redirect('/dash?error=403');
       }
     } else {
       return res.redirect('/auth/discord')
