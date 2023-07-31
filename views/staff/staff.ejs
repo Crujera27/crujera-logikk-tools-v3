@@ -4,14 +4,28 @@
 <title>Logikk's Dashboard - Staff Dashboard</title>
 <body>
   <div class="container mt-5">
-    <h1>Buenos días, <%= user.username %></h1>
-    <p>Te encuentras en el dashboard de administración. Puedes navegar con la barra superior.</p>
+    <h1>
+      <% if (user.discriminator === "0") { %>
+        <% if (getCurrentHourInMadrid < 12) { %>
+          Buenos días, @<%= user.username %>
+        <% } else { %>
+          Buenas tardes, @<%= user.username %>
+        <% } %>
+      <% } else { %>
+        <% if (getCurrentHourInMadrid < 12) { %>
+          Buenos días, <%= user.username %>#<%= user.discriminator %>
+        <% } else { %>
+          Buenas tardes, <%= user.username %>#<%= user.discriminator %>
+        <% } %>
+      <% } %>
+    </h1>
+    <p>Puedes utilizar la barra superior para navegar por esta APP.</p>
   </div>
 </body>
 </html>
 <style>
     body {
-      background-color: #222;
+      background-color: #333;
       color: #fff;
       font-family: sans-serif;
     }

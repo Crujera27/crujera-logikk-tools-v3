@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Logikk's Dashboard - Revisor de warns</title>
+</head>
+<body>
+  <div class="navbar">
+    <%- include('./inc/nav.ejs') %>
+  </div>
+
+  <div class="container mt-5">
+    <h1>Gestor de warns</h1>
+
+    <div class="search-container">
+      <form action="/staff/managewarns" method="get"> <!-- Use the correct action URL -->
+        <input type="text" class="search-box" name="userId" placeholder="ID de usuario">
+        <button class="button search-button" type="submit">Buscar</button>
+      </form>
+    </div>
+    <div class="notification notification-warning">
+        Todas las acciones son registradas, el sistema aún permanece en pruebas
+      </div>
+      <% if (done) { %>
+        <div class="notification notification-success">
+            Warn eliminado correctamente. La acción ha sido registrada.
+        </div>
+      <% } %>
+    <% if (error === 'userIdMissing') { %> <!-- Handle the error here -->
+      <div class="notification notification-danger">
+        No has aportado una ID de usuario, por favor introduzca una ID de usuario válida
+      </div>
+    <% } %>
+
+    <!-- Table to display warns -->
+    <table>
+      <tr>
+        <th>ID Usuario</th>
+        <th>Nivel</th>
+        <th>ID Staff</th>
+        <th>Fecha de emisión</th>
+        <th>Razón</th>
+        <th>Eliminar Warn</th>
+      </tr>
+      <% if (warns && warns.length > 0) {
+        warns.forEach(warn => { %>
+        <tr>
+          <td><%= warn.user_id %></td>
+          <td><%= warn.level %></td>
+          <td><%= warn.staff %></td>
+          <td><%= warn.timestamp %></td>
+          <td><%= warn.reason %></td>
+          <td>
+            <a class="button" href="/staff/revokeWarn?warnId=<%= warn.id %>&userId=<%= warn.user_id %>">Revocar</a>
+          </td>
+        </tr>
+        <% }); 
+      } else { %>
+        <tr>
+          <td colspan="4">No se han encontrado warns en vigor para el usuario.</td>
+        </tr>
+      <% } %>
+    </table>
+  </div>
+</body>
+</html>
+<style>
+body {
+  background-color: #333;
+  color: #333;
+  font-family: Arial, sans-serif;
+  line-height: 1.6;
+}
+
+.container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+  background-color: #fff;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+}
+
+h1 {
+  font-size: 2.5rem;
+  margin-bottom: 20px;
+}
+
+.search-container {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.search-box {
+  flex: 1;
+  padding: 10px;
+  font-size: 1rem;
+  border: 2px solid #555;
+  border-radius: 5px 0 0 5px;
+}
+
+.search-button {
+  background-color: rgb(255, 0, 0);
+  color: #fff;
+  border: none;
+  padding: 10px 20px;
+  font-size: 1rem;
+  border-radius: 0 5px 5px 0;
+  cursor: pointer;
+}
+
+.search-button:hover {
+  background-color: #ff00009d;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+
+th, td {
+  text-align: left;
+  padding: 10px;
+  border-bottom: 1px solid #ddd;
+}
+
+tr:hover {
+  background-color: #aaa9a9;
+}
+
+th {
+  background-color: #ff0000;
+  color: #fff;
+}
+
+.button {
+  display: inline-block;
+  background-color: #ff0000;
+  color: #fff;
+  border: none;
+  padding: 8px 16px;
+  text-decoration: none;
+  border-radius: 4px;
+  margin-top: 10px;
+  cursor: pointer;
+}
+
+.button:hover {
+  background-color: #ff000081;
+}
+
+.notification {
+  margin: 20px 0;
+  padding: 10px;
+  border-radius: 5px;
+  font-weight: bold;
+  text-align: center;
+}
+
+.notification-danger {
+  background-color: #f44336;
+  color: #fff;
+}
+
+.notification-warning {
+  background-color: #ffc107;
+  color: #333;
+}
+.notification-success {
+      background-color: #468300;
+      color: #ffffff;
+    }
+</style>

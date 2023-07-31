@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html>
+<%- include('../inc/nav.ejs') %>
+<title>Logikk's Dashboard - Apelar warn</title>
+&nbsp
+<body>
+
+  <div class="container mt-5">
+    <!-- Warns Category -->
+    <div class="category">
+      <h2>Selecciona un warn</h2>
+      <select name="warn" id="warn" class="form-control">
+        <% if (warns.length > 0) { %>
+          <% for (var i = 0; i < warns.length; i++) { %>
+            <option value="<%= warns[i].id %>">[<%= warns[i].id %>] <%= warns[i].reason %> (<%= warns[i].level %>)</option>
+          <% } %>
+        <% } else { %>
+          <option value="">No tienes ningún warn vigente</option>
+        <% } %>
+      </select>
+      <% if (warns.length > 0) { %>
+        <a class="button btn btn-red" href="/support/appeal-warn/procedure/?warn-id=<%= warns[0].id %>" id="appealButton">Tramitar apelación para el warn seleccionado anteriormente</a>
+      <% } else { %>
+        <a class="button btn btn-disabled" href="#" disabled>Tramitar apelación para el warn seleccionado anteriormente</a>
+      <% } %>
+      &nbsp;
+      <a class="button btn" href="./">Volver a la página de soporte</a>
+    </div>
+
+  </div>
+</body>
+</html>
+<script>
+  document.getElementById('warn').addEventListener('change', function() {
+    var selectedWarnId = this.value;
+    var appealButton = document.getElementById('appealButton');
+    appealButton.href = "/support/appeal-warn/procedure/?warn-id=" + selectedWarnId;
+  });
+
+  document.addEventListener("DOMContentLoaded", function() {
+    var selectedWarnId = document.getElementById('warn').value;
+    var appealButton = document.getElementById('appealButton');
+    appealButton.href = "/support/appeal-warn/procedure/?warn-id=" + selectedWarnId;
+  });
+</script>
+<style>
+  .btn {
+    display: inline-block;
+    border: none;
+    border-radius: 4px;
+    padding: 12px 20px;
+    font-size: 16px;
+    text-align: center;
+    text-decoration: none;
+    color: #fff;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+
+  .btn-red {
+    background-color: #ff0000;
+  }
+
+  .btn-red:hover {
+    background-color: #990000;
+  }
+
+  .btn-disabled {
+    opacity: 0.5;
+    pointer-events: none;
+    cursor: not-allowed;
+  }
+
+  body {
+    background-color: #333;
+    color: #fff;
+    font-family: sans-serif;
+    padding-top: 70px;
+  }
+
+  .navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #111;
+    padding: 10px;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+  }
+
+  .container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+  }
+
+  h1 {
+    font-size: 3rem;
+    margin-bottom: 0;
+  }
+
+  h2 {
+    font-size: 2rem;
+    margin-top: 0;
+    opacity: 0.8;
+  }
+
+  .category {
+    margin-bottom: 30px;
+  }
+
+  .category h2 {
+    margin-bottom: 10px;
+  }
+
+  .category a {
+    display: block;
+    margin-top: 10px;
+  }
+
+  .category a.btn {
+    display: block;
+    margin-top: 10px;
+    width: 100%;
+    background-color: #ff0000;
+    color: #fff;
+    border: none;
+    padding: 12px 20px;
+    text-decoration: none;
+    border-radius: 4px;
+    margin-top: 20px;
+  }
+
+  .category a.btn:last-child {
+    margin-top: 0;
+  }
+
+  .category a.btn:hover {
+    background-color: #990000;
+    color: #fff;
+  }
+</style>

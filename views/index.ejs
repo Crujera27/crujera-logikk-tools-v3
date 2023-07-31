@@ -1,27 +1,13 @@
 <!DOCTYPE html>
 <html>
 <%- include('./inc/nav.ejs') %>
-<title>Logikk's Dashboard</title>
-&nbsp
-<body>
-  <div class="container mt-5">
-    <% if (status === 'total') { %>
-      <div class="alert alert-danger">Actualmente, hay una interrupción total del servicio. La aplicación no funcionará como lo esperado. Por favor venga más tarde.</div>
-    <% } %>
-    <% if (status === 'parcial') { %>
-      <div class="alert alert-warning">Actualmente, hay una interrupción parcial del servicio. La aplicación puede funcionará como lo esperado.</div>
-    <% } %>
-  <% if (error === '403') { %>
-  <div class="alert alert-danger">403 forbidden | El recurso que intenta acceder no está disponible a su nivel de permisos actual.</div>
-  <% } %>
-  <h1>Bienvenido, <%= user.username %>#<%= user.discriminator %></h1>
-  <p>Puedes utilizar la barra superior para navegar por esta APP.</p>
-</div>  
-</body>
-</html>
-<style>
+<head>
+  <title>Logikk's Dashboard</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+  <link href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <style>
     body {
-      background-color: #222;
+      background-color: #333;
       color: #fff;
       font-family: sans-serif;
     }
@@ -66,15 +52,203 @@
     .button {
       display: inline-block;
       background-color: #fff;
-      color: #333;
-      border: 1px solid #333;
+      color: #444;
+      border: 1px solid #444;
       padding: 8px 16px;
       text-decoration: none;
       border-radius: 4px;
       margin-top: 20px;
+      transition: color 0.3s ease; /* Added transition effect */
     }
     .button:hover {
-      background-color: #333;
+      background-color: #444;
+      color: #ff0000; /* Changed hover link color to red */
+    }
+    .dashboard-card {
+      background-color: #444;
+      padding: 20px;
+      margin-top: 40px;
+      transition: flex 0.3s ease;
+      text-align: center;
+    }
+    .dashboard-card h2 {
+      font-size: 2rem;
+      margin-bottom: 20px;
       color: #fff;
     }
-</style>
+    .dashboard-cardbig {
+      background-color: #444;
+      padding: 30px;
+      margin-top: 60px;
+      transition: flex 0.3s ease;
+      text-align: center;
+    }
+
+    .dashboard-cardbig h2 {
+      font-size: 2.5rem;
+      margin-bottom: 30px;
+      color: #fff;
+    }
+
+    .featured-video-card {
+      background-color: #444;
+      padding: 20px;
+      margin-top: 40px;
+      transition: flex 0.3s ease;
+      text-align: center;
+    }
+    .featured-video-card h2 {
+      font-size: 2rem;
+      margin-bottom: 20px;
+      color: #fff;
+    }
+    .featured-video {
+      width: 100%;
+      height: 0;
+      padding-bottom: 56.25%;
+      position: relative;
+      overflow: hidden;
+    }
+    .featured-video iframe {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+    }
+    .popular-links-card {
+      background-color: #444;
+      padding: 20px;
+      margin-top: 40px;
+      transition: flex 0.3s ease;
+      text-align: center;
+    }
+    .popular-links-card h2 {
+      font-size: 2rem;
+      margin-bottom: 20px;
+      color: #fff;
+    }
+    .popular-links {
+      display: flex;
+      flex-wrap: wrap;
+    }
+    .popular-link {
+      background-color: #333;
+      color: #fff;
+      padding: 10px 20px;
+      border-radius: 5px;
+      margin-right: 10px;
+      margin-bottom: 10px;
+      text-decoration: none;
+    }
+    .popular-links .popular-link {
+      color: white;
+      text-decoration: none;
+    }
+    .popular-links .popular-link:hover {
+      color: red;/
+    }
+    .notification {
+      margin: 20px 0;
+      padding: 10px;
+      border-radius: 5px;
+      font-weight: bold;
+      text-align: center;
+    }
+    .notification-danger {
+      background-color: #dc3545;
+      color: #fff;
+    }
+    .notification-warning {
+      background-color: #ffc107;
+      color: #333;
+    }
+    .notification-success {
+      background-color: #468300;
+      color: #ffffff;
+    }
+    @media (min-width: 768px) {
+      .row {
+        display: flex;
+        flex-wrap: wrap;
+      }
+      .dashboard-card,
+      .dashboard-cardbig,
+      .featured-video-card,
+      .popular-links-card {
+        flex: 1;
+      }
+      .featured-video-card {
+        order: -1;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container mt-5">
+    <% if (status === 'total') { %>
+      <div class="notification notification-danger">Actualmente, hay una interrupción total del servicio. La aplicación no funcionará como lo esperado. Por favor venga más tarde.</div>
+    <% } %>
+    <% if (status === 'parcial') { %>
+      <div class="notification notification-warning">Actualmente, hay una interrupción parcial del servicio. La aplicación puede funcionará como lo esperado.</div>
+    <% } %>
+    <% if (error === '403') { %>
+      <div class="notification notification-danger">403 Forbidden | El recurso que intenta acceder no está disponible a su nivel de permisos actual.</div>
+    <% } %>
+    <% if (error === '403-warnnotownedbyuser') { %>
+      <div class="notification notification-danger">403 Forbidden | Usted no es el propietario del warn solicitado y no tiene permiso para representar al legítimo dueño del warn.</div>
+    <% } %>
+    <% if (error === '404') { %>
+      <div class="notification notification-danger">404 Not Found | El recurso que intenta acceder no existe en el servidor.</div>
+    <% } %>
+    <% if (error === '200-warnprocedure') { %>
+      <div class="notification notification-success">200 OK | La petición de apelación ha sido correctamente enviada, recibirá noticias cuando un staff evalúe su petición </div>
+    <% } %>
+    <% if (error === '500-appealexists') { %>
+      <div class="notification notification-danger">500 Server Error | Ya existe una petición para el mismo warn. Solo es posible enviar una petición para apelar un warn una única vez.</div>
+    <% } %>
+    <% if (user.discriminator === "0") { %>
+      <h1>¡Bienvenido, <%= user.username %>!</h1>
+      <p>Puedes utilizar la barra superior para navegar por esta APP.</p>
+    <% } else { %>
+      <h1>¡Bienvenido, <%= user.username %>#<%= user.discriminator %>!</h1>
+      <p>Puedes utilizar la barra superior para navegar por esta APP.</p>
+    <% } %>
+  </div>
+
+  <!-- Dashboard Cards -->
+  <div class="container">
+    <div class="row">
+      <div class="col-12 col-md-6">
+        <div class="dashboard-card">
+          <h2>¿Qué hay de nuevo? (v.<%= version %>)</h2>
+          <p>Diseño mejorado, nueva homepage, y corrección de bugs.</p>
+         <!--  <a href="/whats-new" class="button">Leer más</a> -->
+        </div>
+      </div>
+
+      <div class="col-12 col-md-6">
+        <div class="popular-links-card">
+          <h2>Enlaces Populares</h2>
+          <div class="popular-links">
+            <a href="https://discord.gg/2kPR5jyhR9" class="popular-link">Servidor de Discord</a>
+            <a href="https://www.youtube.com/@LogikkYT" class="popular-link">YouTube</a>
+            <a href="https://twitter.com/logikk4" class="popular-link">Twitter</a>
+            <a href="https://www.twitch.tv/logikkyt" class="popular-link">Twitch</a>
+            <a href="https://www.youtube.com/watch?v=y8rwf71cO-M" class="popular-link">Vídeo Natro Macro</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-12">
+        <div class="featured-video-card">
+          <h2>Vídeo promocionado</h2>
+          <div class="featured-video">
+            <iframe width="854" height="480" src="https://www.youtube.com/embed/iCZSxRBd6i8" frameborder="0" allowfullscreen></iframe>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

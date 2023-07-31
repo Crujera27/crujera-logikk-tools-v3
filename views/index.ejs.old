@@ -1,13 +1,27 @@
 <!DOCTYPE html>
 <html>
-<%- include('../inc/nav.ejs') %>
-<title>Logikk's Dashboard - Solicitud enviada</title>
+<%- include('./inc/nav.ejs') %>
+<title>Logikk's Dashboard</title>
 &nbsp
 <body>
   <div class="container mt-5">
-    <p>Tu solicitud de soporte ha sido correctamente enviada, revisa el apartado de tickets para consultar el estado de tu petición.</p>
-    <p>Por favor, ten en cuenta que puede tardar un plazo máximo de 72 horas en ser revisado en caso de que haya mucha saturación en el sistema.</p>
-  </div>
+    <% if (status === 'total') { %>
+      <div class="alert alert-danger">Actualmente, hay una interrupción total del servicio. La aplicación no funcionará como lo esperado. Por favor venga más tarde.</div>
+    <% } %>
+    <% if (status === 'parcial') { %>
+      <div class="alert alert-warning">Actualmente, hay una interrupción parcial del servicio. La aplicación puede funcionará como lo esperado.</div>
+    <% } %>
+  <% if (error === '403') { %>
+  <div class="alert alert-danger">403 Forbidden | El recurso que intenta acceder no está disponible a su nivel de permisos actual.</div>
+  <% } %>
+  <% if (user.discriminator === "0") { %>
+    <h1>Bienvenido, @<%= user.username %></h1>
+    <p>Puedes utilizar la barra superior para navegar por esta APP.</p>
+  <% } else { %>
+    <h1>Bienvenido, <%= user.username %>#<%= user.discriminator %></h1>
+    <p>Puedes utilizar la barra superior para navegar por esta APP.</p>
+  <% } %>
+</div>  
 </body>
 </html>
 <style>

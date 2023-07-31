@@ -94,7 +94,7 @@ client.on('message', message => {
         if (!reason) {
           return message.reply('Debes proporcionar una razón para aplicar el warn.');
         }
-        addwarn(user, warnLevel, reason, message.channel, message.guild, message.author.id, false)        
+        addwarn(user, warnLevel, reason, message.channel, message.guild, message.author.id, false, true)        
   } else if (message.content.startsWith('lt!historial')) {
       	      if (!message.member.permissions.has('MANAGE_ROLES')) {
  		            return;
@@ -272,7 +272,7 @@ client.on('interactionCreate', async interaction => {
     user.send({ embeds: [embed] });
     interaction.message.delete();
     db.promise().query(`DELETE FROM automod_queue WHERE id = ?`, [matchingRow.id]);
-    addwarn(interaction.guild.members.cache.get(matchingRow.message_author), 'leve', 'Uso de lenguaje inapropiado y/o promoción de contenido inadecuado hacia ciertos grupos de personas.', interaction.channel, interaction.guild, interaction.user.id, true)
+    addwarn(interaction.guild.members.cache.get(matchingRow.message_author), 'leve', 'Uso de lenguaje inapropiado y/o promoción de contenido inadecuado hacia ciertos grupos de personas.', interaction.channel, interaction.guild, interaction.user.id, true, false)
     client.guilds.cache.get(interaction.guild.id).channels.cache.get(matchingRow.channel_id)?.messages.fetch(matchingRow.message_id)?.then(msg => msg.delete()).catch(() => console.error("El mensaje no se ha encontrado (Mnessage no borrado)"));
   } else if (buttonId === `warn_medio_button${matchingRow.message_id}`) {
     const [rows2] = await db.promise().query(`SELECT * FROM automod_queue WHERE warn_medio_interaction_id = ?`, [buttonId]);
@@ -295,7 +295,7 @@ client.on('interactionCreate', async interaction => {
       user.send({ embeds: [embed] });
       interaction.message.delete();
       db.promise().query(`DELETE FROM automod_queue WHERE id = ?`, [matchingRow.id]);
-      addwarn(interaction.guild.members.cache.get(matchingRow.message_author), 'medio', 'Uso de lenguaje inapropiado y/o promoción de contenido inadecuado hacia ciertos grupos de personas.', interaction.channel, interaction.guild, interaction.user.id, true)
+      addwarn(interaction.guild.members.cache.get(matchingRow.message_author), 'medio', 'Uso de lenguaje inapropiado y/o promoción de contenido inadecuado hacia ciertos grupos de personas.', interaction.channel, interaction.guild, interaction.user.id, true, false)
       client.guilds.cache.get(interaction.guild.id).channels.cache.get(matchingRow.channel_id)?.messages.fetch(matchingRow.message_id)?.then(msg => msg.delete()).catch(() => console.error("El mensaje no se ha encontrado (Mnessage no borrado)"));
   } else if (buttonId === `warn_grave_button${matchingRow.message_id}`) {
     const [rows2] = await db.promise().query(`SELECT * FROM automod_queue WHERE warn_grave_interaction_id = ?`, [buttonId]);
@@ -318,7 +318,7 @@ client.on('interactionCreate', async interaction => {
       user.send({ embeds: [embed] });
       interaction.message.delete();
       db.promise().query(`DELETE FROM automod_queue WHERE id = ?`, [matchingRow.id]);
-      addwarn(interaction.guild.members.cache.get(matchingRow.message_author), 'grave', 'Uso de lenguaje inapropiado y/o promoción de contenido inadecuado hacia ciertos grupos de personas.', interaction.channel, interaction.guild, interaction.user.id, true)
+      addwarn(interaction.guild.members.cache.get(matchingRow.message_author), 'grave', 'Uso de lenguaje inapropiado y/o promoción de contenido inadecuado hacia ciertos grupos de personas.', interaction.channel, interaction.guild, interaction.user.id, true, false)
       client.guilds.cache.get(interaction.guild.id).channels.cache.get(matchingRow.channel_id)?.messages.fetch(matchingRow.message_id)?.then(msg => msg.delete()).catch(() => console.error("El mensaje no se ha encontrado (Mnessage no borrado)"));
       }
     else if (buttonId === `falsopositivo${matchingRow.message_id}`){
@@ -379,94 +379,113 @@ function timeoutmember(user, time, mod, reason, deletemessage){
    member.timeout(time, razon).catch(err => interaction.reply(`Ha ocurrido un error: \n${err}`.replace("DiscordAPIError: Missing Permissions", `${no} Me faltan permisos para ejecutar esta acción.`)))  
 }
 */
-function addwarn(user, nivel, reason, channel, guild, modid, deletemessage){
-  let warnLevel = nivel
-  db.query(`SELECT * FROM warns WHERE user_id = '${user.id}'`, (err, rows) => {
-    if (err) throw err;
-
-    let warnCount = {
-      leve: 0,
-      medio: 0,
-      grave: 0
-    };
-
-    if (rows && rows.length > 0) {
-      rows.forEach(row => {
-        warnCount[row.level]++;
-      });
-    }
-
-    let applyWarn = true;
-    let banMessage = '';
-    if (warnLevel === 'leve' && warnCount.leve >= 2) {
-      warnLevel = 'medio';
-      applyWarn = false;
-      banMessage = emojis.warn+` | **<@${user.id}>**(${user.id}) ha superado el máximo de warns leve. Este debería de ser aislado temporalmente.`;
-      db.query(`DELETE FROM warns WHERE user_id = '${user.id}' AND level = 'leve' LIMIT 3`, (err) => {
-        if (err) throw err;
-        console.log(`Se han eliminado 3 warns leves de ${user.id}.`);
-        if(deletemessage==false){
-        addwarn(user, 'medio', 'Acumular un total de 3 warns leves (Último warn leve: '+reason+' ) - Autoinsinuado por automod', channel, guild, modid)
-        }else{
-          addwarn(user, 'medio', 'Acumular un total de 3 warns leves (Último warn leve: '+reason+' ) - Autoinsinuado por automod', channel, guild, modid, true)
-        }
-      });
-    } else if (warnLevel === 'medio' && warnCount.medio >= 2) {
-      warnLevel = 'grave';
-      applyWarn = false;
-      banMessage = emojis.warn+` | **<@${user.id}>**(${user.id}) ha superado el máximo de warns medios. Este debería de ser aislado temporalmente.`;
-      db.query(`DELETE FROM warns WHERE user_id = '${user}' AND level = 'medio' LIMIT 3`, (err) => {
-        if (err) throw err;
-        console.log(`Se han eliminado 3 warns medios de ${user.id}.`);
-        if(deletemessage==false){
-        addwarn(user, 'grave', 'Acumular un total de 3 warns medios (Último warn medio: '+reason+' ) - Autoinsinuado por automod', channel, guild, modid)
-        }else{
-          addwarn(user, 'medio', 'Acumular un total de 3 warns leves (Último warn leve: '+reason+' ) - Autoinsinuado por automod', channel, guild, modid, true)
-        }
-      });
-  } else if (warnLevel === 'grave' && warnCount.grave >= 2) {
-      applyWarn = false;
-      banMessage = emojis.warn` | **<@${user.id}>**(${user.id})  debe de ser baneado por superar la cantidad máxima de warns graves. (*Todos sus datos ya han sido eliminados*)`;
-      db.query(`DELETE FROM warns WHERE user_id = '${user}'`, (err) => {
+function addwarn(user, nivel, reason, channel, guild, modid, deletemessage, senddm) {
+    let warnLevel = nivel;
+    db.query(`SELECT * FROM warns WHERE user_id = '${user.id}'`, (err, rows) => {
+      if (err) throw err;
+  
+      let warnCount = {
+        leve: 0,
+        medio: 0,
+        grave: 0
+      };
+  
+      if (rows && rows.length > 0) {
+        rows.forEach(row => {
+          warnCount[row.level]++;
+        });
+      }
+  
+      let applyWarn = true;
+      let banMessage = '';
+  
+      if (warnLevel === 'leve' && warnCount.leve >= 2) {
+        warnLevel = 'medio';
+        applyWarn = false;
+        banMessage = emojis.warn + ` | **<@${user.id}>**(${user.id}) ha superado el máximo de warns leve. Este debería de ser aislado temporalmente.`;
+        db.query(`DELETE FROM warns WHERE user_id = '${user.id}' AND level = 'leve' LIMIT 3`, (err) => {
+          if (err) throw err;
+          console.log(`Se han eliminado 3 warns leves de ${user.id}.`);
+          if (deletemessage == false) {
+            addwarn(user, 'medio', 'Acumular un total de 3 warns leves (Último warn leve: ' + reason + ' ) - Autoinsinuado por automod', channel, guild, modid, senddm);
+          } else {
+            addwarn(user, 'medio', 'Acumular un total de 3 warns leves (Último warn leve: ' + reason + ' ) - Autoinsinuado por automod', channel, guild, modid, true, senddm);
+          }
+        });
+      } else if (warnLevel === 'medio' && warnCount.medio >= 2) {
+        warnLevel = 'grave';
+        applyWarn = false;
+        banMessage = emojis.warn + ` | **<@${user.id}>**(${user.id}) ha superado el máximo de warns medios. Este debería de ser aislado temporalmente.`;
+        db.query(`DELETE FROM warns WHERE user_id = '${user}' AND level = 'medio' LIMIT 3`, (err) => {
+          if (err) throw err;
+          console.log(`Se han eliminado 3 warns medios de ${user.id}.`);
+          if (deletemessage == false) {
+            addwarn(user, 'grave', 'Acumular un total de 3 warns medios (Último warn medio: ' + reason + ' ) - Autoinsinuado por automod', channel, guild, modid, senddm);
+          } else {
+            addwarn(user, 'medio', 'Acumular un total de 3 warns leves (Último warn leve: ' + reason + ' ) - Autoinsinuado por automod', channel, guild, modid, true, senddm);
+          }
+        });
+      } else if (warnLevel === 'grave' && warnCount.grave >= 2) {
+        applyWarn = false;
+        banMessage = emojis.warn + ` | **<@${user.id}>**(${user.id})  debe de ser baneado por superar la cantidad máxima de warns graves. (*Todos sus datos ya han sido eliminados*)`;
+        db.query(`DELETE FROM warns WHERE user_id = '${user}'`, (err) => {
           if (err) throw err;
           console.log(`Se han eliminado todos los warns de ${user.id}.`);
           if (guild && guild.member) {
-              const member = guild.members.cache.get(user);
-            member.ban({reason: "Máximo de warns graves superados"})
+            const member = guild.members.cache.get(user);
+            member.ban({ reason: "Máximo de warns graves superados" })
               .then(() => console.log(`Usuario ${user.id} baneado`))
               .catch(console.error);
           } else {
             console.error("No se pudo obtener el objeto member para banear al usuario");
           }
-        })}
-    if (applyWarn) {
-      // Aplicamos el warn
-      db.query(`INSERT INTO warns (user_id, reason, level, staff) VALUES ('${user.id}', '${reason}', '${warnLevel}', '${modid}')`, (err) => {
-        if (err) {
-          console.error(err);
-          return channel.send('¡Me cachis! Ha ocurrido un error al guardar el warn en la base de datos.');
-        }
-        channel.send(`**<@${user.id}>**(${user.id}) ha recibido un warn **${warnLevel}** con la razón: \`${reason}\``)
+        });
+      }
+  
+      if (applyWarn) {
+        // Aplicamos el warn
+        db.query(`INSERT INTO warns (user_id, reason, level, staff) VALUES ('${user.id}', '${reason}', '${warnLevel}', '${modid}')`, (err) => {
+          if (err) {
+            console.error(err);
+            return channel.send('¡Me cachis! Ha ocurrido un error al guardar el warn en la base de datos.');
+          }
+  
+          if (senddm) {
+            const embed = new Discord.MessageEmbed()
+              .setColor('#FF0000')
+              .setTitle(`Mensaje de la moderación de Logikk\'s Discord`)
+              .setDescription(`Hola, <@${user.id}>. Nos ponemos en contacto con usted mediante el presente comunicado para informarle sobre las medidas que se han tomado debido a su conducta.\n\nSanción impuest: Warn ${warnLevel}\nRazón: ${reason}\n\nLe recomendamos visitar el canal de <#901587290093158442> y echar un vistazo para evitar futuras sanciones.\nPuede encontrar una lista de sus warns en https://logikk.galnod.com/warns\nSi considera que esta sanción ha sido aplicada de forma incorrecta / injusta, puede enviar una solitud de apelación en https://logikk.galnod.com/support\n\n\nUn saludo,\n**Equipo administrativo de Logikk's Discord**`)
+              .setTimestamp();
+    
+            user.send({ embeds: [embed] })
+              .catch((dmError) => {
+                console.error(dmError);
+                channel.send(`${emojis.warn} | No he podido informar al usuario por DM **<@${user.id}>**(${user.id}).`);
+              });
+          }
+  
+          channel.send(`**<@${user.id}>**(${user.id}) ha recibido un warn **${warnLevel}** con la razón: \`${reason}\``)
+            .then(message => {
+              if (deletemessage == true) {
+                setTimeout(() => {
+                  message.delete();
+                }, 5000);
+              }
+            });
+        });
+      } else {
+        channel.send(banMessage)
           .then(message => {
-          if(deletemessage==true){
-          setTimeout(() => {
-          message.delete();
-          }, 5000);
-      }});
-
-      });
-    } else {
-      channel.send(banMessage)
-      .then(message => {
-      if(deletemessage==true){
-      setTimeout(() => {
-      message.delete();
-      }, 8000);
-    }
-      });
-    }
-  }) 
-}
+            if (deletemessage == true) {
+              setTimeout(() => {
+                message.delete();
+              }, 8000);
+            }
+          });
+      }
+    });
+  }
+  
 
 
 function clearOldWarns() {
@@ -510,6 +529,17 @@ function nuevoTicket(userId){
   channel.send('El usuario con ID de Discord `'+userId+ '` ha creado un nuevo ticket de soporte en la web. \nPuedes revisarlo en https://logikk.galnod.com/staff/tickets');
 }
 
+function RemovedwarnstaffLog(modid, userid, warnid){
+    const automodconf = require('./config/automod.json')
+    const logchannel = client.guilds.cache.get(automodconf.guild).channels.cache.get(automodconf.log)
+    const log = new Discord.MessageEmbed()
+    .setColor('#ff0000')
+    .setTitle('Logikk\'s Tools | Warn eleiminado')
+    .setDescription(`ID warn: **${warnid}**\nModerador: **<@${modid}>(${modid})**\nSanción: **Warn Leve**\nUsuario: **<@${userid}>(${userid})**`)
+    logchannel.send({ embeds: [log]})
+}
+
 
 module.exports.nuevoTicket = nuevoTicket
+module.exports.removedwarnstaffLog = RemovedwarnstaffLog 
 client.login(process.env.discord_token)

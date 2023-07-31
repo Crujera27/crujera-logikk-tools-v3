@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html>
+<%- include('../inc/nav.ejs') %>
+<title>Logikk's Dashboard - Tramitación apelar warn</title>
+&nbsp
+<body>
+
+  <div class="container mt-5">
+    <!-- Appeal Form -->
+    <div class="category">
+      <h2>Complete los siguientes datos para apelar el warn:</h2>
+      <form id="appealForm" action="/support/appeal-warn/procedure" method="POST">
+        <div class="form-field">
+          <label for="username">Username:</label>
+          <input type="text" id="username" name="username" value="<%= user.username %>" readonly>
+        </div>
+        <div class="form-field">
+          <label for="userId">ID del usuario:</label>
+          <input type="text" id="userId" name="userId" value="<%= user.discord_id %>" readonly>
+        </div>
+        <div class="form-field">
+          <label for="warnId">ID del Warn:</label>
+          <input type="text" id="warnId" name="warnId" value="<%= warn.id %>" readonly>
+        </div>
+        <div class="form-field">
+          <label for="warnReason">Razón del warn:</label>
+          <input type="text" id="warnReason" name="warnReason" value="<%= warn.reason %>" readonly>
+        </div>
+        <div class="form-field">
+          <label for="warnLevel">Nivel del warn:</label>
+          <input type="text" id="warnLevel" name="warnLevel" value="<%= warn.level %>" readonly>
+        </div>
+        <div class="form-field">
+          <label for="warnTimestamp">Fecha de emisión:</label>
+          <input type="text" id="warnTimestamp" name="warnTimestamp" value="<%= warn.timestamp %>" readonly>
+        </div>
+        <div class="form-field">
+          <label for="longReason">Razón por la que está apelando el warn:</label>
+          <textarea id="longReason" name="longReason" rows="4" required></textarea>
+        </div>
+        <br>
+        <button class="button btn btn-red" type="submit">Enviar petición de apelación</button>
+      </form>
+      &nbsp;
+      <a class="button btn" href="./">Volver a la página de soporte</a>
+    </div>
+  </div>
+</body>
+</html>
+<style>
+      .form-field {
+    margin-bottom: 15px;
+  }
+
+  .form-field label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 5px;
+  }
+
+  .form-field input[type="text"],
+  .form-field textarea {
+    width: 100%;
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    color: #333;
+  }
+
+  .form-field textarea {
+    resize: vertical;
+  }
+  .btn {
+    display: inline-block;
+    border: none;
+    border-radius: 4px;
+    padding: 12px 20px;
+    font-size: 16px;
+    text-align: center;
+    text-decoration: none;
+    color: #fff;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+
+  .btn-red {
+    background-color: #ff0000;
+  }
+
+  .btn-red:hover {
+    background-color: #990000;
+  }
+
+  body {
+    background-color: #333;
+    color: #fff;
+    font-family: sans-serif;
+    padding-top: 70px;
+  }
+
+  .navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #111;
+    padding: 10px;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+  }
+
+  .container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+  }
+
+  h1 {
+    font-size: 3rem;
+    margin-bottom: 0;
+  }
+
+  h2 {
+    font-size: 2rem;
+    margin-top: 0;
+    opacity: 0.8;
+  }
+
+  .category {
+    margin-bottom: 30px;
+  }
+
+  .category h2 {
+    margin-bottom: 10px;
+  }
+
+  .category a {
+    display: block;
+    margin-top: 10px;
+  }
+
+  .category a.btn {
+    display: block;
+    margin-top: 10px;
+    width: 100%;
+    background-color: #ff0000;
+    color: #fff;
+    border: none;
+    padding: 12px 20px;
+    text-decoration: none;
+    border-radius: 4px;
+    margin-top: 20px;
+  }
+
+  .category a.btn:last-child {
+    margin-top: 0;
+  }
+
+  .category a.btn:hover {
+    background-color: #990000;
+    color: #fff;
+  }
+
+  /* Styles for form fields */
+  .form-field {
+    margin-bottom: 15px;
+  }
+
+  .form-field label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 5px;
+  }
+
+  .form-field input[type="text"],
+  .form-field textarea {
+    width: 100%;
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    color: #333;
+  }
+
+  .form-field textarea {
+    resize: vertical;
+  }
+</style>

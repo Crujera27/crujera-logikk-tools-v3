@@ -55,71 +55,114 @@
       </table>
       
   </div>      
-  <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNVeG6w" crossorigin="anonymous"></script>
-  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
 </body>
 </html>
 <style>
-    .categoria {
-  max-width: 200px; 
-  word-wrap: break-word; 
+body {
+  background-color: #333;
+  color: #333;
+  font-family: Arial, sans-serif;
+  line-height: 1.6;
 }
-    body {
-      background-color: #222;
-      color: #fff;
-      font-family: sans-serif;
-    }
-    .navbar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      background-color: #111;
-      padding: 10px;
-    }
-    .container {
-      max-width: 800px;
-      margin: 0 auto;
-      padding: 20px;
-    }
-    h1 {
-      font-size: 3rem;
-      margin-bottom: 0;
-    }
-    h2 {
-      font-size: 2rem;
-      margin-top: 0;
-      opacity: 0.8;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 20px;
-    }
-    th, td {
-      text-align: left;
-      padding: 8px;
-      border-bottom: 1px solid #ddd;
-    }
-    tr:hover {
-      background-color: #444;
-    }
-    th {
-      background-color: #111;
-      color: #fff;
-    }
-    .button {
-      display: inline-block;
-      background-color: #fff;
-      color: #333;
-      border: 1px solid #333;
-      padding: 8px 16px;
-      text-decoration: none;
-      border-radius: 4px;
-      margin-top: 20px;
-    }
-    .button:hover {
-      background-color: #333;
-      color: #fff;
+
+.container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+  background-color: #fff;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+}
+
+h1 {
+  font-size: 2.5rem;
+  margin-bottom: 20px;
+}
+
+.search-container {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.search-box {
+  flex: 1;
+  padding: 10px;
+  font-size: 1rem;
+  border: 2px solid #555;
+  border-radius: 5px 0 0 5px;
+}
+
+.search-button {
+  background-color: rgb(255, 0, 0);
+  color: #fff;
+  border: none;
+  padding: 10px 20px;
+  font-size: 1rem;
+  border-radius: 0 5px 5px 0;
+  cursor: pointer;
+}
+
+.search-button:hover {
+  background-color: #ff00009d;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+
+th, td {
+  text-align: left;
+  padding: 10px;
+  border-bottom: 1px solid #ddd;
+}
+
+tr:hover {
+  background-color: #aaa9a9;
+}
+
+th {
+  background-color: #ff0000;
+  color: #fff;
+}
+
+.button {
+  display: inline-block;
+  background-color: #ff0000;
+  color: #fff;
+  border: none;
+  padding: 8px 16px;
+  text-decoration: none;
+  border-radius: 4px;
+  margin-top: 10px;
+  cursor: pointer;
+}
+
+.button:hover {
+  background-color: #ff000081;
+}
+
+.notification {
+  margin: 20px 0;
+  padding: 10px;
+  border-radius: 5px;
+  font-weight: bold;
+  text-align: center;
+}
+
+.notification-danger {
+  background-color: #f44336;
+  color: #fff;
+}
+
+.notification-warning {
+  background-color: #ffc107;
+  color: #333;
+}
+.notification-success {
+      background-color: #468300;
+      color: #ffffff;
     }
 </style>

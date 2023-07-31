@@ -64,6 +64,21 @@ app.use(execInAllRoutesExcept(["/", "/legal", "/legal/privacidad", "/legal/tos",
     }
   });
 }));
+// staff midelware
+app.use(execInAllRoutesExcept(["/", "/legal", "/legal/privacidad", "/legal/tos", "/logout", "/auth/discord", "/auth/discord/callback", "/reactivar"], (req, res, next) => {
+  db.query('SELECT isStaff FROM users WHERE id = ?', [req.user.id], (error, results) => {
+    if (error) {
+      console.error(error);
+      return res.status(500).json({ error: '500 | Server Error' });
+    }
+    const isStaffBuffer = results[0] && results[0].isStaff;
+    const isStaff = isStaffBuffer ? isStaffBuffer[0] === 1 : false;
+
+    res.locals.isStaff = isStaff;
+    next();
+  });
+}));
+
 
 app.use(execInAllRoutesExcept(["/", "/legal", "/legal/privacidad", "/legal/tos", "/logout", "/auth/discord", "/auth/discord/callback", "/reactivar"], (req, res, next) => {
   const userId = req.user.discord_id;
@@ -94,20 +109,25 @@ passport.use(new DiscordStrategy({
   callbackURL: process.env.app_callbackURL,
   scope: ['identify'],
 }, (accessToken, refreshToken, profile, done) => {
-  // Buscar al usuario en la base de datos o crear uno nuevo si no existe
   const { id, username, discriminator } = profile;
+
   db.query('SELECT * FROM users WHERE discord_id = ?', [id], (error, results) => {
     if (error) throw error;
+
     if (results.length === 0) {
       db.query('INSERT INTO users (discord_id, username, discriminator) VALUES (?, ?, ?)', [id, username, discriminator], (error) => {
         if (error) throw error;
         return done(null, profile);
       });
     } else {
-      return done(null, profile);
+      db.query('UPDATE users SET username = ?, discriminator = ? WHERE discord_id = ?', [username, discriminator, id], (error) => {
+        if (error) throw error;
+        return done(null, profile);
+      });
     }
   });
 }));
+
 // Serializar y deserializar el usuario
 passport.serializeUser((user, done) => {
   done(null, user.id);
@@ -119,6 +139,7 @@ passport.deserializeUser((id, done) => {
     done(null, results[0]);
   });
 });
+
 
 app.get('/reactivar', async (req, res) => {
   try {
@@ -164,6 +185,7 @@ app.get('/tickets', async (req, res) => {
 }else{
   return res.redirect('/auth/discord')}})
   const ticketController = require('./models/ticketController');
+const { copyFileSync } = require('fs');
   app.post('/tickets', ticketController.createTicket);
   app.get('/tickets/:id', ticketController.viewTicket);
   function isAuthenticatedAndOwner(req, res, next) {
@@ -239,6 +261,7 @@ app.get('/dash', (req, res) => {
       user: req.user,
       status: appstatus,
       error: req.query.error,
+      version: require('./package.json').version,
   });
   } else {
     res.redirect('/auth/discord');
@@ -246,93 +269,85 @@ app.get('/dash', (req, res) => {
 });
 app.get('/support', (req, res) => {
   if (req.isAuthenticated()) {
-    res.render('support/solicitar', {
+    res.render('support/seleccionar', {
       user: req.user,
   });
   } else {
     res.redirect('/auth/discord');
   }
 });
-
-app.post('/support/enviado', (req, res) => {
+app.get('/support/appeal-warn/procedure', (req, res) => {
   if (req.isAuthenticated()) {
-  const userId = req.body.userid;
-  const category = req.body.category;
-  const notes = req.body.reason;
-  if(userId==null || category==null || notes==null){
-    return res.json({error: 'Ha ocurrido un error interno al intentar procesar esta petición ¿Has solicitado tu ver está pagina de forma manual?'})
-  }
-  if (notes.length > 255) {
-    return res.render('support/error', {
-      user: req.user,
-  });
-  }
-  console.log('ID: '+userId+' ID de categoría: '+category+' Notas adicionales: '+notes)
-  if(category=="1"){
-    db.query(
-      "INSERT INTO tickets (title, description, status, userId, discord_id) VALUES (?, ?, ?, ?, ?)",
-      ["Presentar una apelación formal en relación a un ban que me ha sido aplicado de manera incorrecta.", notes, "en progreso", req.user.id, req.user.discord_id],
-      function (error, results, fields) {
-        if (error) throw error;
+    const warnId = req.query['warn-id'];
+    const sql = 'SELECT * FROM warns WHERE id = ? AND user_id = ?';
+    db.query(sql, [warnId, req.user.discord_id], (err, results) => {
+      if (err) throw err;
+      if (results.length === 0) {
+        return res.redirect('/dash?error=403-warnnotownedbyuser');
       }
-    );
-  }else if(category=="2"){
-    db.query(
-      "INSERT INTO tickets (title, description, status, userId, discord_id) VALUES (?, ?, ?, ?, ?)",
-      ["Presentar una apelación formal en relación a un warn leve que me ha sido aplicado de manera incorrecta.", notes, "en progreso", req.user.id, req.user.discord_id],
-      function (error, results, fields) {
-        if (error) throw error;
-      }
-    );
-  }else if(category=="3"){
-    db.query(
-      "INSERT INTO tickets (title, description, status, userId, discord_id) VALUES (?, ?, ?, ?, ?)",
-      ["Presentar una apelación formal en relación a un warn medio que me ha sido aplicado de manera incorrecta.", notes, "en progreso", req.user.id, req.user.discord_id],
-      function (error, results, fields) {
-        if (error) throw error;
-      }
-    );
-}else if(category=="4"){
-  db.query(
-    "INSERT INTO tickets (title, description, status, userId, discord_id) VALUES (?, ?, ?, ?, ?)",
-    ["Presentar una apelación formal en relación a un warn grave que me ha sido aplicado de manera incorrecta.", notes, "en progreso", req.user.id, req.user.discord_id],
-    function (error, results, fields) {
-      if (error) throw error;
-    }
-  );
-}else if(category=="5"){
-  db.query(
-    "INSERT INTO tickets (title, description, status, userId, discord_id) VALUES (?, ?, ?, ?, ?)",
-    ["Presentar una apelación formal en relación a un timeout que me ha sido aplicado de manera incorrecta.", notes, "en progreso", req.user.id, req.user.discord_id],
-    function (error, results, fields) {
-      if (error) throw error;
-    }
-  );
-}else if(category=="6"){
-  db.query(
-    "INSERT INTO tickets (title, description, status, userId, discord_id) VALUES (?, ?, ?, ?, ?)",
-    ["Presentar una apelación formal en relación a un warn medio que me ha sido aplicado de manera incorrecta.", notes, "en progreso", req.user.id, req.user.discord_id],
-    function (error, results, fields) {
-      if (error) throw error;
-    }
-  );
-}else if(category=="7"){
-  db.query(
-    "INSERT INTO tickets (title, description, status, userId, discord_id) VALUES (?, ?, ?, ?,?)",
-    ["Solicitar formalmente la eliminación de toda mi información del sistema y mi suspensión indefinida de este mismo.", notes, "en progreso", req.user.id, req.user.discord_id],
-    function (error, results, fields) {
-      if (error) throw error;
-    }
-  );
-}
-require('./main').nuevoTicket(req.user.discord_id)
-  return res.redirect('/tickets?noti=ticketsend')
+      res.render('support/warn-appeal', { warn: results[0], user: req.user });
+    });
   } else {
-  res.redirect('/auth/discord');
-}
+    return res.redirect('/auth/discord');
+  }
+});
+app.post('/support/appeal-warn/procedure', (req, res) => {
+  if (req.isAuthenticated()) {
+    const { userId, warnId, longReason } = req.body;
+    const sql1 = 'SELECT * FROM warns WHERE id = ? AND user_id = ?';
+    db.query(sql1, [warnId, req.user.discord_id], (err, results) => {
+      if (err) throw err;
+      if (results.length === 0) {
+        return res.redirect('/dash?error=403-warnnotownedbyuser');
+      }
+
+      const sql2 = 'SELECT * FROM appeals WHERE user_id = ? AND warn_id = ?';
+      db.query(sql2, [req.user.discord_id, warnId], (err, appealResults) => {
+        if (err) throw err;
+        if (appealResults.length > 0) {
+          return res.redirect('/dash?error=500-appealexists');
+        }
+
+        const sql3 = 'INSERT INTO appeals (user_id, warn_id, reason) VALUES (?, ?, ?)';
+        db.query(sql3, [req.user.discord_id, warnId, longReason], (err, results) => {
+          if (err) throw err;
+        });
+
+        const sql4 = 'INSERT INTO tickets (title, description, status, userId, discord_id) VALUES (?, ?, ?, ?, ?)';
+        db.query(sql4, ['Apelación del warn n.º ' + warnId, longReason, 'en progreso', req.user.id, req.user.discord_id], (err, results) => {
+          if (err) throw err;
+          res.redirect('/dash?error=200-warnprocedure');
+        });
+      });
+    });
+  } else {
+    return res.redirect('/auth/discord');
+  }
 });
 
 
+
+app.get('/support/appeal-warn', (req, res) => {
+  if (req.isAuthenticated()) {
+  const sql = 'SELECT * FROM warns WHERE user_id = ?';
+  db.query(sql, [req.user.discord_id], (err, results) => {
+  if (err) throw err;
+  res.render('support/select-warn-appeal', { warns: results, user: req.user});
+  });
+  }else{
+      return res.redirect('/auth/discord')
+  }
+});
+app.get('/jobs', (req, res) => {
+  if (req.isAuthenticated()) {
+    res.render('jobs', {
+      user: req.user,
+      error: req.query.error,
+  });
+  } else {
+    res.redirect('/auth/discord');
+  }
+});
   app.get('/warns', (req, res) => {
     if (req.isAuthenticated()) {
     const sql = 'SELECT * FROM warns WHERE user_id = ?';
@@ -361,16 +376,77 @@ require('./main').nuevoTicket(req.user.discord_id)
   app.get('/staff', (req, res) => {
     if (req.isAuthenticated()) {
       if(isStaff(req, res)==true){
-       return res.render('staff/staff', {user: req.user});
+        function getCurrentHourInMadrid() {
+          const madridTime = new Date().toLocaleString("es-ES", {
+            timeZone: "Europe/Madrid",
+          });
+          return new Date(madridTime).getHours();
+        }
+
+
+       return res.render('staff/staff', {user: req.user, getCurrentHourInMadrid: getCurrentHourInMadrid()});
       }
       return res.redirect('/dash?error=403');
     }else{
         return res.redirect('/auth/discord')
     }
   });
+  app.get('/staff/managewarns', (req, res) => {
+    if (req.isAuthenticated()) {
+      if (isStaff(req, res)) {
+        const userId = req.query.userId;
+  
+        // Check if userId is provided
+        if (!userId) {
+          return res.render('staff/warnmanager', { warns: [], user: req.user, error: 'userIdMissing', done: req.query.done });
+        }
+  
+        db.query(`SELECT * FROM warns WHERE user_id = ?`, [userId], (err, results) => {
+          if (err) {
+            console.error(err);
+            return res.status(500).json({ error: '500 | Server Error' });
+          } else {
+            return res.render('staff/warnmanager', { warns: results, user: req.user, error: null, done: req.query.done }); 
+          }
+        });
+      } else {
+        return res.redirect('/dash?error=403');
+      }
+    } else {
+      return res.redirect('/auth/discord');
+    }
+  });
+  app.get('/staff/revokeWarn', (req, res) => {
+    if (req.isAuthenticated()) {
+      if (isStaff(req, res)) {
+    const { warnId } = req.query;
+    if (!req.query.userId) {
+      return res.status(400).json({ error: 'La URL ha sido manipulada. Las acciones han sido registradas' });
+    }
+    if (!warnId || isNaN(warnId)) {
+      return res.status(400).json({ error: 'ID del warn inválida' });
+    }
+    require('./main').removedwarnstaffLog(req.user.discord_id, req.query.userId, warnId)
+    db.query('DELETE FROM warns WHERE id = ?', [warnId], (err, result) => {
+      if (err) {
+        console.error(err);
+        return res.status(500).json({ error: '500 | Server Error' });
+      }
+      res.redirect('/staff/managewarns?done=true')
+    });
+  } else {
+    return res.redirect('/dash?error=403');
+  }
+} else {
+  return res.redirect('/auth/discord');
+}
+});
+  
   app.get('/staff/addwarn', (req, res) => {
     if (req.isAuthenticated()) {
       if(isStaff(req, res)==true){
+        //desactivado
+        return res.redirect('/staff')
       return res.render('staff/addwarn', {user: req.user});
       }
       return res.redirect('/dash?error=403');
@@ -395,6 +471,8 @@ require('./main').nuevoTicket(req.user.discord_id)
   app.post('/staff/system/addwarn', (req, res) => {
     if (req.isAuthenticated()) {
       if(isStaff(req, res)==true){
+        //desactivado
+        return res.redirect('/staff')
     const { userId, reason, level, staffID } = req.body;
     console.log(userId. reason, level, staffID)
     db.query(`INSERT INTO warns (user_id, reason, level, staff) VALUES ('${userId}', '${reason}', '${level}', '${staffid}')`, (err) => {
@@ -447,7 +525,7 @@ app.post('/staff/tickets/:id/update-status', (req, res) => {
   
 
   app.use(function(req, res, next) {
-    res.status(404).redirect('/');
+    res.status(404).redirect('/dash?error=404');
   });
 
   // Iniciar el servidor

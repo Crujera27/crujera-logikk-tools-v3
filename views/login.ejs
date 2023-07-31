@@ -19,20 +19,32 @@
             color: white;
             font-family: sans-serif;
             margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
         }
+
         .container {
             display: flex;
-            flex-direction: row;
-            height: 100vh;
-            width: 100vw;
+            width: 100%;
+            height: 100%;
+            position: relative;
+            overflow: hidden;
+            background: linear-gradient(to top right, #343a40, #252525);
+            border-radius: 15px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
         }
-        .left {
+
+        .photo-section {
+            flex: 1;
             background-image: url('https://crujera.galnod.com/img/logikk.png');
             background-size: cover;
             background-position: center;
-            flex: 1;
+            clip-path: polygon(0% 0%, 100% 0, 100% 100%, 0% 70%);
         }
-        .right {
+
+        .login-section {
             flex: 1;
             display: flex;
             flex-direction: column;
@@ -40,19 +52,25 @@
             align-items: center;
             padding: 20px;
             background-color: #252525;
+            clip-path: polygon(0% 30%, 100% 0, 100% 100%, 0% 100%);
             border-left: 2px solid #444;
+            border-top-right-radius: 15px;
+            border-bottom-right-radius: 15px;
         }
+
         h1 {
             font-size: 36px;
             margin-top: 0;
         }
+
         h2 {
             font-size: 26px;
             margin-top: 0;
         }
+
         .discord-button {
             text-decoration: none;
-            background-color: #7289da;
+            background-color: #9a9b9c;
             border: none;
             color: white;
             padding: 10px 20px;
@@ -63,68 +81,78 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
         }
+
         .discord-icon {
             width: 30px;
             margin-right: 10px;
         }
+
         p {
             font-size: 12px;
             margin-top: 20px;
             text-align: center;
         }
-    .cookie-banner {
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        padding: 10px;
-        background-color: #333;
-        color: #fff;
-        font-size: 14px;
-        z-index: 9999;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-    }
 
-    .cookie-button {
-        background-color: #fff;
-        color: #333;
-        padding: 8px 16px;
-        border-radius: 5px;
-        font-size: 14px;
-        cursor: pointer;
-        margin-left: 16px;
-    }
+        .cookie-banner {
+            position: absolute;
+            top: 20px; /* Adjust the distance from the top */
+            left: 0;
+            right: 0;
+            padding: 10px;
+            background-color: #333;
+            color: #fff;
+            font-size: 14px;
+            z-index: 9999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-bottom-left-radius: 15px;
+            border-bottom-right-radius: 15px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
 
-    .cookie-banner p {
-        margin: 0;
-    }
+        .cookie-button {
+            background-color: #fff;
+            color: #333;
+            padding: 8px 16px;
+            border-radius: 5px;
+            font-size: 14px;
+            cursor: pointer;
+            margin-left: 16px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
 
+        .cookie-banner p {
+            margin: 0;
+        }
 
+        footer {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            font-size: 12px;
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="left"></div>
-        <div class="right">
-            
+        <div class="photo-section"></div>
+        <div class="login-section">
             <h1>Logikk's Dashboard</h1>
             <h2>Inicia sesión para continuar</h2>
-            <a href="/auth/discord">
-                <button class="discord-button">
-                  <i class="fab fa-discord"></i> Iniciar sesión con Discord
-                </button>
-              </a>              
+            <a href="/auth/discord" class="discord-button">
+                <img src="https://crujera.galnod.com/img/discord.png" alt="Discord Logo" class="discord-icon">
+                Iniciar sesión con Discord
+              </a>
             <p>Al utilizar este servicio estás de acuerdo con nuestra <a href="/legal/privacidad">Política de Privacidad</a> y <a href="/legal/tos">Términos de Servicio</a></p>
-            <div class="cookie-banner">
-                <p>Este sitio web utiliza cookies para garantizar que obtengas la mejor experiencia en nuestro sitio web. Si continúa utilizándolo, asumiremos de que está de acuerdo.</p>
-            </div>
         </div>
     </div>
-    <footer style="position: fixed; bottom: 0; right: 0; margin: 10px; font-size: 12px;">
+    <div class="cookie-banner">
+        <p>Este sitio web utiliza cookies para garantizar que obtengas la mejor experiencia en nuestro sitio web. Si continúa utilizándolo, asumiremos de que está de acuerdo.</p>
+    </div>
+    <footer>
         <p>Logikk's Dashboard v.<%= version %> developed with ❤ by <a href="https://crujera.galnod.com">Crujera</a></p>
     </footer>
 </body>
