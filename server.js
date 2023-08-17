@@ -97,12 +97,6 @@ app.use(execInAllRoutesExcept(["/", "/legal", "/legal/privacidad", "/legal/tos",
     }
   });
 }));
-
-
-
-
-
-
 passport.use(new DiscordStrategy({
   clientID: process.env.oAuth_clientID,
   clientSecret: process.env.oAuth_clientSecret,

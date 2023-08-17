@@ -443,7 +443,6 @@ function addwarn(user, nivel, reason, channel, guild, modid, deletemessage, send
       }
   
       if (applyWarn) {
-        // Aplicamos el warn
         db.query(`INSERT INTO warns (user_id, reason, level, staff) VALUES ('${user.id}', '${reason}', '${warnLevel}', '${modid}')`, (err) => {
           if (err) {
             console.error(err);
@@ -454,7 +453,7 @@ function addwarn(user, nivel, reason, channel, guild, modid, deletemessage, send
             const embed = new Discord.MessageEmbed()
               .setColor('#FF0000')
               .setTitle(`Mensaje de la moderación de Logikk\'s Discord`)
-              .setDescription(`Hola, <@${user.id}>. Nos ponemos en contacto con usted mediante el presente comunicado para informarle sobre las medidas que se han tomado debido a su conducta.\n\nSanción impuest: Warn ${warnLevel}\nRazón: ${reason}\n\nLe recomendamos visitar el canal de <#901587290093158442> y echar un vistazo para evitar futuras sanciones.\nPuede encontrar una lista de sus warns en https://logikk.galnod.com/warns\nSi considera que esta sanción ha sido aplicada de forma incorrecta / injusta, puede enviar una solitud de apelación en https://logikk.galnod.com/support\n\n\nUn saludo,\n**Equipo administrativo de Logikk's Discord**`)
+              .setDescription(`Hola, <@${user.id}>. Nos ponemos en contacto con usted mediante el presente comunicado para informarle sobre las medidas que se han tomado debido a su conducta.\n\nSanción impuest: Warn **${warnLevel}**\nRazón: **${reason}**\n\nLe recomendamos visitar el canal de <#901587290093158442> y echar un vistazo para evitar futuras sanciones.\nPuede encontrar una lista de sus warns en https://logikk.galnod.com/warns\nSi considera que esta sanción ha sido aplicada de forma incorrecta / injusta, puede enviar una solitud de apelación en https://logikk.galnod.com/support\n\n\nUn saludo,\n**Equipo administrativo de Logikk's Discord**`)
               .setTimestamp();
     
             user.send({ embeds: [embed] })
@@ -502,6 +501,7 @@ function clearOldWarns() {
         const diffInDays = (now - warnDate) / (24 * 60 * 60 * 1000);
   
         if (warn.level === "leve" && diffInDays > 30) {
+          RemovedwarnstaffLogByAutoMod(warn.user_id, warn.id, warn.level, warn.reason)
           console.log(`[`+now+`] Borrando warn leve del usuario con ID ${warn.user_id}...`);
           db.query(`DELETE FROM warns WHERE id=${warn.id}`, (err, result) => {
             if (err) throw err;
@@ -509,6 +509,7 @@ function clearOldWarns() {
         }
   
         if (warn.level === "medio" && diffInDays > 90) {
+          RemovedwarnstaffLogByAutoMod(warn.user_id, warn.id, warn.level, warn.reason)
           console.log(`[`+now+`] Borrando warn medio del usuario con ID ${warn.user_id}...`);
           db.query(`DELETE FROM warns WHERE id=${warn.id}`, (err, result) => {
             if (err) throw err;
@@ -535,8 +536,17 @@ function RemovedwarnstaffLog(modid, userid, warnid){
     const log = new Discord.MessageEmbed()
     .setColor('#ff0000')
     .setTitle('Logikk\'s Tools | Warn eleiminado')
-    .setDescription(`ID warn: **${warnid}**\nModerador: **<@${modid}>(${modid})**\nSanción: **Warn Leve**\nUsuario: **<@${userid}>(${userid})**`)
+    .setDescription(`ID warn: **${warnid}**\nModerador: **<@${modid}>(${modid})**\nSanción: **Warn**\nUsuario: **<@${userid}>(${userid})**`)
     logchannel.send({ embeds: [log]})
+}
+function RemovedwarnstaffLogByAutoMod(userid, warnid, warnLevel, warnReason){
+  const automodconf = require('./config/automod.json')
+  const logchannel = client.guilds.cache.get(automodconf.guild).channels.cache.get(automodconf.log)
+  const log = new Discord.MessageEmbed()
+  .setColor('#ff0000')
+  .setTitle('Logikk\'s Tools | Warn eleiminado')
+  .setDescription(`ID warn: **${warnid}**\nModerador: **<@${client.user.id}>(${client.user.id})**\nSanción: **Warn ${warnLevel} (Expirado)**\nUsuario: **<@${userid}>(${userid})**\nRazón del Warn: **${warnReason}**`)
+  logchannel.send({ embeds: [log]})
 }
 
 

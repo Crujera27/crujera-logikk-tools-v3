@@ -222,7 +222,7 @@
       <div class="col-12 col-md-6">
         <div class="dashboard-card">
           <h2>¿Qué hay de nuevo? (v.<%= version %>)</h2>
-          <p>Diseño mejorado, nueva homepage, y corrección de bugs.</p>
+          <p>Corrección de bugs, ahora el vídeo en el dashboard es seleccionado aleatoriamente de una lista. Se ha añadido el top economía del Discord a la homepage del dashboard.</p>
          <!--  <a href="/whats-new" class="button">Leer más</a> -->
         </div>
       </div>
@@ -239,16 +239,50 @@
           </div>
         </div>
       </div>
-
       <div class="col-12">
         <div class="featured-video-card">
-          <h2>Vídeo promocionado</h2>
+          <h2>Video promocionado</h2>
           <div class="featured-video">
-            <iframe width="854" height="480" src="https://www.youtube.com/embed/iCZSxRBd6i8" frameborder="0" allowfullscreen></iframe>
+            <iframe id="randomVideo" width="854" height="480" frameborder="0" allowfullscreen></iframe>
           </div>
+        </div>
+      </div>
+    <div class="col-12">
+      <div class="popular-links-card">
+        <h2>Economía Discord</h2>
+        <div class="featured-video">
+          <iframe src="https://unbelievaboat.com/leaderboard/901587289954730004/widget" width="450" height="500" style="border: 0;"></iframe>
         </div>
       </div>
     </div>
   </div>
 </body>
 </html>
+<script>
+  // video random
+  const videoList = [
+    "https://www.youtube.com/embed/iCZSxRBd6i8",
+    "https://www.youtube.com/embed/Q6gFgHKeGdI",
+    "https://www.youtube.com/embed/FMkmcdAryZE",
+    "https://www.youtube.com/embed/th8WmUFW2XU",
+    "https://www.youtube.com/embed/AT1B0PktIRo",
+    "https://www.youtube.com/embed/VEbZFKt9Ko8",
+    "https://www.youtube.com/embed/4mvmgomaCL4",
+    "https://www.youtube.com/embed/8-MLnWEKV-c",
+    "https://www.youtube.com/embed/K1EsYbLD97M",
+    "https://www.youtube.com/embed/qSpEz0wRM5E",
+    "https://www.youtube.com/embed/EY7mD_uoqqg",
+    "https://www.youtube.com/embed/nWDojmYEybc",
+    "https://www.youtube.com/embed/JvzfYFZElII",
+    "https://www.youtube.com/embed/UP6XTRarKeA",
+    "https://www.youtube.com/embed/r7ulxdcNAVc",
+    ""
+  ];
+  function setRandomVideo() {
+    const randomIndex = Math.floor(Math.random() * videoList.length);
+    const randomVideoUrl = videoList[randomIndex];
+    const iframe = document.getElementById("randomVideo");
+    iframe.src = randomVideoUrl;
+  }
+  window.addEventListener("load", setRandomVideo);
+</script>
