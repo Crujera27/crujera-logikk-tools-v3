@@ -73,8 +73,23 @@ app.use(execInAllRoutesExcept(["/", "/legal", "/legal/privacidad", "/legal/tos",
     }
     const isStaffBuffer = results[0] && results[0].isStaff;
     const isStaff = isStaffBuffer ? isStaffBuffer[0] === 1 : false;
-
     res.locals.isStaff = isStaff;
+    next();
+  });
+}));
+app.use(execInAllRoutesExcept(["/", "/legal", "/legal/privacidad", "/legal/tos", "/logout", "/auth/discord", "/auth/discord/callback", "/reactivar"], (req, res, next) => {
+  const userId = req.user.discord_id;
+
+  db.query('SELECT avatar_uuid FROM users WHERE discord_id = ?', [userId], (error, results) => {
+    if (error) {
+      console.error(error);
+      return res.status(500).json({ error: '500 | Server Error' });
+    }
+    if (results.length > 0 && results[0].avatar_uuid != null) {
+      res.locals.avatarUrl = 'https://cdn.discordapp.com/avatars/'+req.user.discord_id+'/'+results[0].avatar_uuid;
+    }else{
+      res.locals.avatarUrl = "https://i.imgur.com/qxzp6Ux.jpg"
+    }
     next();
   });
 }));
@@ -103,18 +118,18 @@ passport.use(new DiscordStrategy({
   callbackURL: process.env.app_callbackURL,
   scope: ['identify'],
 }, (accessToken, refreshToken, profile, done) => {
-  const { id, username, discriminator } = profile;
+  const { id, username, discriminator, avataruuid } = profile;
 
   db.query('SELECT * FROM users WHERE discord_id = ?', [id], (error, results) => {
     if (error) throw error;
 
     if (results.length === 0) {
-      db.query('INSERT INTO users (discord_id, username, discriminator) VALUES (?, ?, ?)', [id, username, discriminator], (error) => {
+      db.query('INSERT INTO users (discord_id, username, discriminator, avatar_uuid) VALUES (?, ?, ?, ?)', [id, username, discriminator, avataruuid], (error) => {
         if (error) throw error;
         return done(null, profile);
       });
     } else {
-      db.query('UPDATE users SET username = ?, discriminator = ? WHERE discord_id = ?', [username, discriminator, id], (error) => {
+      db.query('UPDATE users SET username = ?, discriminator = ?, avatar_uuid = ? WHERE discord_id = ?', [username, discriminator, avataruuid, id], (error) => {
         if (error) throw error;
         return done(null, profile);
       });
@@ -170,7 +185,6 @@ app.get('/not-approved', function(req, res, next){
 app.get('/tickets', async (req, res) => {
   if (req.isAuthenticated()) {
   const Ticket = require('./models/ticket');
-  // Obtener todos los tickets del usuario desde la base de datos
   const tickets = await Ticket.findAll({
     where: { userId: req.user.id },
     order: [['updatedAt', 'DESC']]
@@ -183,30 +197,19 @@ const { copyFileSync } = require('fs');
   app.post('/tickets', ticketController.createTicket);
   app.get('/tickets/:id', ticketController.viewTicket);
   function isAuthenticatedAndOwner(req, res, next) {
-    // Verificar si el usuario tiene una sesión iniciada
     if (!req.session.user) {
-      // Si el usuario no tiene sesión, redirigirlo a la página de inicio de sesión
       return res.redirect('/');
     }
-  
-    // Obtener el ID del ticket de la URL
     const ticketId = req.params.id;
-  
-    // Obtener el ID del usuario de la sesión
     const userId = req.session.user.id;
-  
-    // Verificar si el usuario es el dueño del ticket
     db.query('SELECT user_id FROM tickets WHERE id = ?', [ticketId], (err, results) => {
       if (err) throw err;
   
       const ticketOwnerId = results[0].user_id;
   
       if (ticketOwnerId !== userId) {
-        // Si el usuario no es el dueño del ticket, mostrar un error 403 (prohibido)
         return res.status(403).send('No estás autorizado para ver este ticket');
       }
-  
-      // Si el usuario tiene una sesión iniciada y es el dueño del ticket, continuar con la siguiente función middleware o el controlador correspondiente
       next();
     });
   }
@@ -225,12 +228,10 @@ const { copyFileSync } = require('fs');
     ticketController.viewTicket(req, res, req.user);
   });
   app.get('/img/discord.png', (req, res) => {
-    // Verificar si el usuario ha iniciado sesión
     if (req.isAuthenticated()) {
-      // Pasar los datos del usuario a la página de inicio
       res.redirect('/dash');
     } else {
-      res.render('discord.png')
+      res.sendFile('discord.png')
     }
   }); 
 
@@ -287,8 +288,7 @@ app.get('/support/appeal-warn/procedure', (req, res) => {
 });
 app.post('/support/appeal-warn/procedure', (req, res) => {
   if (req.isAuthenticated()) {
-    const { userId, warnId, longReason } = req.body;
-    const sql1 = 'SELECT * FROM warns WHERE id = ? AND user_id = ?';
+    const { userId, warnId, longReason } = req.body;    const sql1 = 'SELECT * FROM warns WHERE id = ? AND user_id = ?';
     db.query(sql1, [warnId, req.user.discord_id], (err, results) => {
       if (err) throw err;
       if (results.length === 0) {
@@ -342,6 +342,14 @@ app.get('/jobs', (req, res) => {
     res.redirect('/auth/discord');
   }
 });
+app.get('/docs/protocolo-staff', (req, res) => {
+  if (req.isAuthenticated()) {
+    const filePath = path.join(__dirname, './views/docs', 'Logikk\'s Discord - Políticas Interna.pdf');
+    res.sendFile(filePath)
+  } else {
+    res.redirect('/auth/discord');
+  }
+});
   app.get('/warns', (req, res) => {
     if (req.isAuthenticated()) {
     const sql = 'SELECT * FROM warns WHERE user_id = ?';
@@ -365,6 +373,7 @@ app.get('/jobs', (req, res) => {
       return false
     }
   }
+  
   
   // Staff controller
   app.get('/staff', (req, res) => {

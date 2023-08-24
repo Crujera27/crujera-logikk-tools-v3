@@ -548,8 +548,18 @@ function RemovedwarnstaffLogByAutoMod(userid, warnid, warnLevel, warnReason){
   .setDescription(`ID warn: **${warnid}**\nModerador: **<@${client.user.id}>(${client.user.id})**\nSanción: **Warn ${warnLevel} (Expirado)**\nUsuario: **<@${userid}>(${userid})**\nRazón del Warn: **${warnReason}**`)
   logchannel.send({ embeds: [log]})
 }
+async function getAvatar(userId) {
+  try {
+    const user = await client.users.fetch(userId);
+    console.log(user.displayAvatarURL())
+    return user.displayAvatarURL();
+  } catch (error) {
+    console.error(`Error fetching user: ${error.message}`);
+    return 'https://i.imgur.com/qxzp6Ux.jpg';
+  }
+}
 
-
+module.exports.getAvatar = getAvatar
 module.exports.nuevoTicket = nuevoTicket
 module.exports.removedwarnstaffLog = RemovedwarnstaffLog 
 client.login(process.env.discord_token)
