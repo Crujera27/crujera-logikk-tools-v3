@@ -28,6 +28,7 @@ app.use(session({
   resave: false,
   saveUninitialized: false,
 }));
+app.use(express.static('public'));
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }))
 app.use(passport.initialize());
@@ -40,6 +41,18 @@ const execInAllRoutesExcept = (exceptRoutes, middleware) => {
     return middleware(req, res, next);
   };
 };
+//Loading
+app.use((req, res, next) => {
+  let loaded = require('./main').checkLoaded
+  if (loaded){
+    next()
+  }else{
+    res.render('loading', {
+      pjson: require('./package.json'),
+      showdebug: require('./config/app-config').configVersion
+  });
+  }
+})
 // Ban controller
 app.use(execInAllRoutesExcept(["/", "/legal", "/legal/privacidad", "/legal/tos", "/logout", "/auth/discord", "/auth/discord/callback"], (req, res, next) => {
   if (!req.isAuthenticated()) {
@@ -77,24 +90,85 @@ app.use(execInAllRoutesExcept(["/", "/legal", "/legal/privacidad", "/legal/tos",
     next();
   });
 }));
-app.use(execInAllRoutesExcept(["/", "/legal", "/legal/privacidad", "/legal/tos", "/logout", "/auth/discord", "/auth/discord/callback", "/reactivar"], (req, res, next) => {
-  const userId = req.user.discord_id;
 
-  db.query('SELECT avatar_uuid FROM users WHERE discord_id = ?', [userId], (error, results) => {
-    if (error) {
-      console.error(error);
+app.use(
+  execInAllRoutesExcept(
+    [
+      "/",
+      "/legal",
+      "/legal/privacidad",
+      "/legal/tos",
+      "/logout",
+      "/auth/discord",
+      "/auth/discord/callback",
+      "/reactivar"
+    ],
+    (req, res, next) => {
+      const userId = req.user.discord_id;
+      db.query(
+        'SELECT * FROM settings WHERE user_id = ?',
+        [userId],
+        (selectSettingsError, settingsResults) => {
+          if (selectSettingsError) {
+            console.error(selectSettingsError);
+            return res.status(500).json({ error: '500 | Server Error' });
+          }
+
+          if (settingsResults.length === 0) {
+            console.log('User added to settings table')
+            db.query(
+              'INSERT INTO settings (user_id, profile_image_url, warn_notification, support_notification, suspicious_activity_notification, api_key_status) VALUES (?, ?, ?, ?, ?, ?)',
+              [
+                userId,
+                "https://i.imgur.com/qxzp6Ux.jpg",
+                "disabled",
+                "disabled",
+                "disabled",
+                "disabled"
+              ],
+              (insertSettingsError) => {
+                if (insertSettingsError) {
+                  console.error(insertSettingsError);
+                  return res.status(500).json({ error: '500 | Server Error' });
+                }
+
+                res.locals.avatarUrl  = "https://i.imgur.com/qxzp6Ux.jpg";
+                next(); 
+              }
+            );
+          } else {
+
+            res.locals.avatarUrl  = settingsResults[0].profile_image_url;
+            next();
+          }
+        }
+      );
+    }
+  )
+);
+
+
+
+function insertOrUpdateSettings(userId, res, next) {
+  const defaultSettings = {
+    user_id: userId,
+    profile_image_url: "https://i.imgur.com/qxzp6Ux.jpg",
+    warn_notification: "disabled",
+    support_notification: "disabled",
+    suspicious_activity_notification: "disabled",
+    api_key_status: "disabled"
+  };
+
+  db.query('INSERT INTO settings SET ? ON DUPLICATE KEY UPDATE profile_image_url = VALUES(profile_image_url), warn_notification = VALUES(warn_notification), support_notification = VALUES(support_notification), suspicious_activity_notification = VALUES(suspicious_activity_notification), api_key_status = VALUES(api_key_status)', defaultSettings, (insertError) => {
+    if (insertError) {
+      console.error(insertError);
       return res.status(500).json({ error: '500 | Server Error' });
     }
-    if (results.length > 0 && results[0].avatar_uuid != null) {
-      res.locals.avatarUrl = 'https://cdn.discordapp.com/avatars/'+req.user.discord_id+'/'+results[0].avatar_uuid;
-    }else{
-      res.locals.avatarUrl = "https://i.imgur.com/qxzp6Ux.jpg"
-    }
-    next();
+
+    res.locals.avatarUrl = defaultSettings.profile_image_url;
+    next(); // Call next() after inserting the default settings
   });
-}));
-
-
+}
 app.use(execInAllRoutesExcept(["/", "/legal", "/legal/privacidad", "/legal/tos", "/logout", "/auth/discord", "/auth/discord/callback", "/reactivar"], (req, res, next) => {
   const userId = req.user.discord_id;
 
@@ -137,7 +211,7 @@ passport.use(new DiscordStrategy({
   });
 }));
 
-// Serializar y deserializar el usuario
+// Serializar y deserializar el usuarios
 passport.serializeUser((user, done) => {
   done(null, user.id);
 });
@@ -148,8 +222,6 @@ passport.deserializeUser((id, done) => {
     done(null, results[0]);
   });
 });
-
-
 app.get('/reactivar', async (req, res) => {
   try {
     await db.query('UPDATE warns SET `read` = 1 WHERE user_id = ' + req.user.discord_id);
@@ -243,6 +315,7 @@ app.get('/', (req, res) => {
   } else {
     res.render('login', {
       user: req.user,
+      devVersion: require('./main').checkDev(),
       version: require('./package.json').version,
   });
   }
@@ -334,13 +407,134 @@ app.get('/support/appeal-warn', (req, res) => {
 });
 app.get('/jobs', (req, res) => {
   if (req.isAuthenticated()) {
-    res.render('jobs', {
+    res.render('mod/jobs', {
       user: req.user,
       error: req.query.error,
   });
   } else {
     res.redirect('/auth/discord');
   }
+});
+app.get('/team', (req, res) => {
+  if (req.isAuthenticated()) {
+    res.render('mod/team', {
+      user: req.user,
+  });
+  } else {
+    res.redirect('/auth/discord');
+  }
+});
+app.get('/recursos', (req, res) => {
+  if (req.isAuthenticated()) {
+    res.render('mod/recursos', {
+      user: req.user,
+      error: req.query.error,
+  });
+  } else {
+    res.redirect('/auth/discord');
+  }
+});
+app.get('/settings', (req, res) => {
+  if (req.isAuthenticated()) {
+    const userId = req.user.id;
+
+    db.query('SELECT * FROM settings WHERE user_id = ?', [userId], (err, results) => {
+      if (err) {
+        console.error('Error retrieving user settings:', err);
+        return res.status(500).json({error: '500 | Server Error'});
+      }
+
+      if (results.length > 0) {
+        const userSettings = results[0];
+        res.render('settings', { user: req.user, userSettings: userSettings });
+      } else {
+        const defaultSettings = {
+          profileImageUrl: '',
+          warnNotification: 'disabled',
+          supportNotification: 'disabled',
+          suspiciousActivityNotification: 'disabled',
+          apiKeyStatus: 'disabled',
+        };
+
+        res.render('settings', { user: req.user, userSettings: defaultSettings });
+      }
+    });
+  } else {
+    res.redirect('/auth/discord');
+  }
+});
+
+function isValidImageUrl(url) {
+  const imageUrlRegex = /\.(png|jpg|webp)$/i;
+  return imageUrlRegex.test(url);
+}
+
+function updateSetting(settingName, req, res) {
+  if (req.isAuthenticated()) {
+    const userId = req.user.discord_id;
+    const settingValue = req.body.settingValue;
+
+    const settingColumns = {
+      profileImageUrl: 'profile_image_url',
+      warnNotification: 'warn_notification',
+      supportNotification: 'support_notification',
+      suspiciousActivityNotification: 'suspicious_activity_notification',
+      apiKeyStatus: 'api_key_status',
+    };
+
+    if (settingColumns.hasOwnProperty(settingName)) {
+      const columnName = settingColumns[settingName];
+      const sql = `UPDATE settings SET ${columnName} = ? WHERE user_id = ?`;
+
+      if (settingName === 'profileImageUrl' && !isValidImageUrl(settingValue)) {
+        console.error('Invalid profile image URL:', settingValue);
+        return res.status(400).json({eorr: '500 | Server Error', errorinfo: 'Invalid profile image URL'});
+      }
+
+      // Execute the SQL query with proper error handling
+      db.query(sql, [settingValue, userId], (err, results) => {
+        if (err) {
+          console.error(`Error updating ${settingName} setting for user with ID ${userId}:`, err);
+          return res.status(500).json({ error: '500 | Server Error' });
+        }
+
+        if (results.affectedRows === 0) {
+          console.error(`User with ID ${userId} not found or no rows were affected.`);
+          return res.status(404).json({ error: '404 | User not found' });
+        }
+
+        console.log(`User with ID ${userId} updated ${settingName} setting successfully`);
+        res.redirect('/settings');
+      });
+    } else {
+      console.error('Invalid setting name:', settingName);
+      return res.status(400).send('Invalid setting name');
+    }
+  } else {
+    res.redirect('/auth/discord');
+  }
+}
+
+
+
+app.post('/save-support-notification', (req, res) => {
+  updateSetting('supportNotification', req, res);
+});
+
+app.post('/save-suspicious-activity-notification', (req, res) => {
+  updateSetting('suspiciousActivityNotification', req, res);
+});
+
+app.post('/save-api-key-status', (req, res) => {
+  updateSetting('apiKeyStatus', req, res);
+});
+
+app.post('/save-profile-image', (req, res) => {
+  updateSetting('profileImageUrl', req, res);
+});
+
+app.post('/save-warn-notification', (req, res) => {
+  updateSetting('warnNotification', req, res);
 });
 app.get('/docs/protocolo-staff', (req, res) => {
   if (req.isAuthenticated()) {
@@ -363,62 +557,72 @@ app.get('/docs/protocolo-staff', (req, res) => {
   });
   const staffIds = process.env.staffs_ids.split(',');
 
-  function isStaff(req, res, next) {
-    const supportconf = require('./config/support.json')
-    let test = false
-    var staffIds = require('./config/staff.json').staff.split(',');
-    if (staffIds.includes(req.user.discord_id)) {
-      return true;
-    } else {
-      return false
-    }
+  async function isStaff(req) {
+    const supportconf = require('./config/support.json');
+    const result = await require('./main').checkrole(req.user.discord_id, supportconf.staffroleid, supportconf.supportServerId);
+    return result;
   }
   
   
   // Staff controller
-  app.get('/staff', (req, res) => {
+  app.get('/staff', async (req, res) => {
     if (req.isAuthenticated()) {
-      if(isStaff(req, res)==true){
+      try {
+        const isUserStaff = await isStaff(req);
+        if (!isUserStaff) {
+          return res.status(403).redirect('/dash?error=403')
+        }
+  
         function getCurrentHourInMadrid() {
           const madridTime = new Date().toLocaleString("es-ES", {
             timeZone: "Europe/Madrid",
           });
           return new Date(madridTime).getHours();
         }
-
-
-       return res.render('staff/staff', {user: req.user, getCurrentHourInMadrid: getCurrentHourInMadrid()});
-      }
-      return res.redirect('/dash?error=403');
-    }else{
-        return res.redirect('/auth/discord')
-    }
-  });
-  app.get('/staff/managewarns', (req, res) => {
-    if (req.isAuthenticated()) {
-      if (isStaff(req, res)) {
-        const userId = req.query.userId;
   
-        // Check if userId is provided
-        if (!userId) {
-          return res.render('staff/warnmanager', { warns: [], user: req.user, error: 'userIdMissing', done: req.query.done });
-        }
-  
-        db.query(`SELECT * FROM warns WHERE user_id = ?`, [userId], (err, results) => {
-          if (err) {
-            console.error(err);
-            return res.status(500).json({ error: '500 | Server Error' });
-          } else {
-            return res.render('staff/warnmanager', { warns: results, user: req.user, error: null, done: req.query.done }); 
-          }
+        res.render('staff/staff', {
+          user: req.user,
+          getCurrentHourInMadrid: getCurrentHourInMadrid(),
         });
-      } else {
-        return res.redirect('/dash?error=403');
+      } catch (error) {
+        console.error(error);
+        res.status(500).json({error: '500 | Internal Server Error'});
       }
     } else {
       return res.redirect('/auth/discord');
     }
   });
+  
+  app.get('/staff/managewarns', async (req, res) => {
+    if (req.isAuthenticated()) {
+      if (req.isAuthenticated()) {
+        try {
+          const isUserStaff = await isStaff(req);
+          if (!isUserStaff) {
+            return res.status(403).redirect('/dash?error=403')
+          }
+    
+          const userId = req.query.userId;
+          if (!userId) {
+            return res.render('staff/warnmanager', { warns: [], user: req.user, error: 'userIdMissing', done: req.query.done });
+          }
+    
+          db.query(`SELECT * FROM warns WHERE user_id = ?`, [userId], (err, results) => {
+            if (err) {
+              console.error(err);
+              return res.status(500).json({ error: '500 | Server Error' });
+            } else {
+              return res.render('staff/warnmanager', { warns: results, user: req.user, error: null, done: req.query.done }); 
+            }
+          });
+        } catch (error) {
+          console.error(error);
+          res.status(500).json({error: '500 | Internal Server Error'});
+        }
+      } else {
+        return res.redirect('/auth/discord');
+      }
+  }});
   app.get('/staff/revokeWarn', (req, res) => {
     if (req.isAuthenticated()) {
       if (isStaff(req, res)) {
@@ -457,18 +661,24 @@ app.get('/docs/protocolo-staff', (req, res) => {
         return res.redirect('/auth/discord')
     }
   }); 
-  app.get('/staff/tickets', (req, res) => {
+  app.get('/staff/tickets', async (req, res) => {
     if (req.isAuthenticated()) {
-      if (isStaff(req, res)) {
+      try {
+        const isUserStaff = await isStaff(req);
+        if (!isUserStaff) {
+          return res.status(403).redirect('/dash?error=403')
+        }
+  
         connection.query("SELECT * FROM tickets WHERE status = 'en progreso'", (error, results, fields) => {
           if (error) throw error;
           return res.render('staff/ticketlist', {user: req.user, tickets: results, noti: req.query.noti});
         });
-      } else {
-        return res.redirect('/dash?error=403');
+      } catch (error) {
+        console.error(error);
+        res.status(500).json({error: '500 | Internal Server Error'});
       }
     } else {
-      return res.redirect('/auth/discord')
+      return res.redirect('/auth/discord');
     }
   });
   app.post('/staff/system/addwarn', (req, res) => {

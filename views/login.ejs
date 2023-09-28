@@ -153,6 +153,10 @@
         <p>Este sitio web utiliza cookies para garantizar que obtengas la mejor experiencia en nuestro sitio web. Si continúa utilizándolo, asumiremos de que está de acuerdo.</p>
     </div>
     <footer>
+        <% if (devVersion) { %>
+            <p>⚠️ Esta página web utiliza una versión no oficialmente publicada por <a href="https://crujera.galnod.com">Crujera</a></p> 
+            <p>⚠️ versiones pueden ser muy inestables y no están recomendadas para producción.</p>
+        <% } %>
         <p>Logikk's Dashboard v.<%= version %> developed with ❤️ by <a href="https://crujera.galnod.com">Crujera</a></p>
     </footer>
 </body>

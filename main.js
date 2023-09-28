@@ -1,8 +1,20 @@
+const fs = require('fs');
+
+console.log('ℹ > Cargando...')
+try {
+  const watermark = fs.readFileSync('watermark.txt', 'utf8');
+  console.log(watermark);
+} catch (err) {
+  console.error(`❌> Error al intentar cargar un archivo: ${err.message}`);
+  return process.exit()
+}
+console.log('ℹ > Versión: ' + require('./package.json').version)
+// App
 require('dotenv').config();
 const Discord = require('discord.js');
 const emojis = require('./config/emojis.json')
 const mysql = require('mysql2');
-const { Client, Intents } = require('discord.js');
+const { Client, Intents, MessageActionRow, MessageButton, TextInputComponent } = require('discord.js');
 require('./server')
 console.log('pterodactyl, bot started')
 const client = new Client({ 
@@ -18,9 +30,13 @@ const db = mysql.createPool({
   password : process.env.mysql_pass,
   database : process.env.mysql_database
 });
-
 client.on('ready', () => {
-  console.log(`Conectado como ${client.user.tag}`);
+  console.log(`✅ > Conectado como ${client.user.tag}`);
+  let loaded = false
+  function checkLoaded(){
+    return loaded = true
+  }
+  module.exports.checkLoaded = checkLoaded
   clearOldWarns()
   client.user.setPresence({
     status: 'online',
@@ -33,7 +49,7 @@ client.on('ready', () => {
   let servicedisruptionge = false
   module.exports.setservicedisruptionge = function(status){
     servicedisruptionge == status
-    console.log('Se ha cambiado el estado de la interrupción del servicio a'+status)
+    console.log('Se ha cambiado el estado de la interrupción del servicio a '+status)
   }
   module.exports.getservicedisruptionge = function(){
     return servicedisruptionge;
@@ -75,21 +91,16 @@ client.on('message', message => {
       if (!message.member.permissions.has('MANAGE_ROLES')) {
           return;
         }
-        // Obtenemos el usuario que recibirá el warn
         const user = message.mentions.users.first();
         if (!user) {
           return message.reply(':x: | Debes mencionar a un usuario para aplicarle un warn.');
         }
-      
-        // Obtenemos el grado de warn
         const warnLevelArg = message.content.split(' ')[2];
-        let warnLevel = warnLevelArg ? warnLevelArg.toLowerCase() : 'leve'; // si no se especifica, se asume leve
+        let warnLevel = warnLevelArg ? warnLevelArg.toLowerCase() : 'leve';
       
         if (warnLevel !== 'leve' && warnLevel !== 'medio' && warnLevel !== 'grave') {
           return message.reply('El grado de warn debe ser `leve`, `medio` o `grave`.');
         }
-      
-        // Obtenemos la razón del warn
         const reason = message.content.split(' ').slice(3).join(' ');
         if (!reason) {
           return message.reply('Debes proporcionar una razón para aplicar el warn.');
@@ -170,7 +181,7 @@ client.on('message', message => {
 //Automod handler
 client.on('messageCreate', message => {
   const automodconf = require('./config/automod.json')
-  const badWords = ["aberrante", "abominable", "anormal", "asqueroso", "aterrador", "bestia", "cobarde", "cochino", "corrupto", "desagradable", "desalmado", "despreciable", "diabólico", "doloroso", "egoísta", "enfermo", "envidioso", "estafador", "estúpido", "feo", "fétido", "falso", "grosero", "gruñón", "herético", "hipócrita", "horrible", "idiota", "ignorante", "incompetente", "indeciso", "indeseable", "indignante", "infame", "inmoral", "insensible", "intolerante", "irrespetuoso", "ladrón", "lastimoso", "lamentable", "lento", "macabro", "malcriado", "malvado", "mediocre", "mentiroso", "miedoso", "miserable", "monstruoso", "nefasto", "negativo", "nervioso", "noctámbulo", "obsceno", "odioso", "ofensivo", "perverso", "prepotente", "putrefacto", "repugnante", "resentido", "ridículo", "ruin", "sádico", "sinvergüenza", "soberbio", "sucio", "tacaño", "temeroso", "tenebroso", "terrible", "tonto", "traicionero", "tramposo", "turbio", "vergonzoso", "vil", "violento", "zafio", "zarrapastroso", "zopenco", "zurdo", "pelotudo", "idiota", "imbécil", "gil", "boludo", "maricón", "pendejo", "cagón", "culiado", "huevón", "huevudo", "huevonazo", "guevón", "guevonada", "chuchaqui", "borracho", "alcohólico", "vago", "flojo", "mamerto", "malparido", "hijueputa", "puta", "puto", "culeado", "pajero", "masturbador", "asqueroso", "inmundo", "desgraciado", "maldito", "mierda", "cabrón", "pendejada", "jodido", "perra", "perrero", "cabeza de chorlito", "retardado", "anormal", "cabestro", "conchetumadre", "malnacido", "estúpido", "retrasado", "imbécil", "pajúa", "cagapalos", "malparido", "mierdero", "zorra", "váyanse al carajo", "mejor mueran", "mamagüevo", "malcojido", "cagado", "chupamedias", "malnacido", "cagada", "culicagado", "charlatán", "arrastrado", "patán", "sinvergüenza", "ladronzuelo", "estafador", "charlatán", "farolero", "payaso", "estúpido", "hueso", "tontolculo", "charlatán", "mentiroso", "sinvergüenza", "pérfido", "traidor", "golfo", "deshonesto", "ruin", "desleal", "farsante", "mentecato", "zopenco", "imbécil", "necio", "papanatas", "cretino", "nabo", "gilipollas", "pelma", "plasta", "caradura", "cínico", "hipócrita", "falso", "envidioso", "mentiroso", "calumniador", "difamador", "malintencionado", "agorero", "profeta de desgracias", "matón", "brutal", "cruel", "desalmado", "sádico", "bestia", "despiadado", "insensible", "inclemente", "traumatizado", "ass", "bitch", "bastard", "shit", "crap", "damn", "fuck", "hell", "piss", "dick", "cock", "pussy", "cunt", "twat", "douche", "jerk", "prick", "wanker", "dipshit", "idiot", "moron", "stupid", "retard", "lunatic", "psycho", "crazy", "nuts", "maniac", "baldy", "fatty", "ugly", "chicken", "asshole", "motherfucker", "son of a bitch", "whore", "slut", "skank", "hoe", "tramp", "cum", "shithead", "cockblocker", "asshat", "dumbass", "dumbfuck", "shitbag", "scumbag", "jackass", "sucker", "dickhead", "twatwaffle", "bitchface", "fuckwit", "fuckface", "shitforbrains", "shitstain", "buttface", "douchebag", "cockbite", "knobhead", "dickweed", "dingleberry", "piss off", "bugger off", "bloody", "bollocks", "wanker", "git", "tosser", "naff off", "sod off", "arsehole", "shite", "fanny", "knob", "minger", "prat", "numpty", "plonker", "wazzock", "gobshite", "chav", "bellend", "minge", "cack", "turd", "fart", "shart", "boob", "tits", "nipples", "balls", "schlong", "boner", "clit", "vagina", "labia", "muff", "arse", "butt", "booty", "tush", "crapola", "bollocks", "dagnabbit"]
+  const badWords = ["puta", "hdp", "tpm", "tu puta madre", "payaso", "polla", "maricon", "pene", "polla", "vagina", "chocho", "chumino", "prepucio", "glande", "puto", "gilipollas"]
   if (message.author.bot || !message.guild) return;
 
   // Check if message contains any bad words
@@ -405,7 +416,7 @@ function addwarn(user, nivel, reason, channel, guild, modid, deletemessage, send
         banMessage = emojis.warn + ` | **<@${user.id}>**(${user.id}) ha superado el máximo de warns leve. Este debería de ser aislado temporalmente.`;
         db.query(`DELETE FROM warns WHERE user_id = '${user.id}' AND level = 'leve' LIMIT 3`, (err) => {
           if (err) throw err;
-          console.log(`Se han eliminado 3 warns leves de ${user.id}.`);
+          console.log(`✅ > Se han eliminado 3 warns leves de ${user.id}.`);
           if (deletemessage == false) {
             addwarn(user, 'medio', 'Acumular un total de 3 warns leves (Último warn leve: ' + reason + ' ) - Autoinsinuado por automod', channel, guild, modid, senddm);
           } else {
@@ -418,7 +429,7 @@ function addwarn(user, nivel, reason, channel, guild, modid, deletemessage, send
         banMessage = emojis.warn + ` | **<@${user.id}>**(${user.id}) ha superado el máximo de warns medios. Este debería de ser aislado temporalmente.`;
         db.query(`DELETE FROM warns WHERE user_id = '${user}' AND level = 'medio' LIMIT 3`, (err) => {
           if (err) throw err;
-          console.log(`Se han eliminado 3 warns medios de ${user.id}.`);
+          console.log(`✅ > Se han eliminado 3 warns medios de ${user.id}.`);
           if (deletemessage == false) {
             addwarn(user, 'grave', 'Acumular un total de 3 warns medios (Último warn medio: ' + reason + ' ) - Autoinsinuado por automod', channel, guild, modid, senddm);
           } else {
@@ -430,14 +441,14 @@ function addwarn(user, nivel, reason, channel, guild, modid, deletemessage, send
         banMessage = emojis.warn + ` | **<@${user.id}>**(${user.id})  debe de ser baneado por superar la cantidad máxima de warns graves. (*Todos sus datos ya han sido eliminados*)`;
         db.query(`DELETE FROM warns WHERE user_id = '${user}'`, (err) => {
           if (err) throw err;
-          console.log(`Se han eliminado todos los warns de ${user.id}.`);
+          console.log(`✅ > Se han eliminado todos los warns de ${user.id}.`);
           if (guild && guild.member) {
             const member = guild.members.cache.get(user);
             member.ban({ reason: "Máximo de warns graves superados" })
               .then(() => console.log(`Usuario ${user.id} baneado`))
               .catch(console.error);
           } else {
-            console.error("No se pudo obtener el objeto member para banear al usuario");
+            console.error("❌ > No se pudo obtener el objeto member para banear al usuario");
           }
         });
       }
@@ -489,7 +500,7 @@ function addwarn(user, nivel, reason, channel, guild, modid, deletemessage, send
 
 function clearOldWarns() {
     const now = new Date();
-    console.log("["+now+"] Comprobando warns...");
+    console.log("⌚ > ["+now+"] Comprobando warns...");
     const oneMonthAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
     const threeMonthsAgo = new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000);
   
@@ -502,7 +513,7 @@ function clearOldWarns() {
   
         if (warn.level === "leve" && diffInDays > 30) {
           RemovedwarnstaffLogByAutoMod(warn.user_id, warn.id, warn.level, warn.reason)
-          console.log(`[`+now+`] Borrando warn leve del usuario con ID ${warn.user_id}...`);
+          console.log(`✅ > [`+now+`] Borrando warn leve del usuario con ID ${warn.user_id}...`);
           db.query(`DELETE FROM warns WHERE id=${warn.id}`, (err, result) => {
             if (err) throw err;
           });
@@ -510,7 +521,7 @@ function clearOldWarns() {
   
         if (warn.level === "medio" && diffInDays > 90) {
           RemovedwarnstaffLogByAutoMod(warn.user_id, warn.id, warn.level, warn.reason)
-          console.log(`[`+now+`] Borrando warn medio del usuario con ID ${warn.user_id}...`);
+          console.log(`✅ > [`+now+`] Borrando warn medio del usuario con ID ${warn.user_id}...`);
           db.query(`DELETE FROM warns WHERE id=${warn.id}`, (err, result) => {
             if (err) throw err;
           });
@@ -558,8 +569,33 @@ async function getAvatar(userId) {
     return 'https://i.imgur.com/qxzp6Ux.jpg';
   }
 }
+function checkDev(){
+  if (client.user.id == "750312626478776420"){
+    return false
+  }else{
+    return true
+  }
+}
+async function checkrole(memberid, roleid, guildid) {
+  try {
+    const guild = await client.guilds.fetch(guildid);
+    const member = await guild.members.fetch(memberid);
+    const role = guild.roles.cache.get(roleid);
 
+    if (role && member.roles.cache.has(role.id)) {
+      return true;
+    } else {
+      return false;
+    }
+  } catch (error) {
+    console.error(error);
+    return false; 
+  }
+}
+
+module.exports.checkDev = checkDev
 module.exports.getAvatar = getAvatar
 module.exports.nuevoTicket = nuevoTicket
-module.exports.removedwarnstaffLog = RemovedwarnstaffLog 
+module.exports.removedwarnstaffLog = RemovedwarnstaffLog
+module.exports.checkrole = checkrole
 client.login(process.env.discord_token)

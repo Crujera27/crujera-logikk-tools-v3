@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+<%- include('../inc/nav.ejs') %>
+<title>Logikk's Dashboard - Recursos de moderación</title>
+<html>
+  <body>
+    <div class="container mt-5">
+      <% if (error === 'notavailable') { %>
+        <div class="notification notification-warning">No es posible completar la petición, actualmente no estamos buscando interesados para la posición seleccionada</div>
+      <% } %>  
+      <div class="row">
+        <div class="col-12">
+          <div class="table-responsive">
+            <h2 class="text-center mb-4">Recursos de moderación</h2>
+            <table class="table table-striped">
+              <thead class="thead-dark">
+                <tr>
+                  <th scope="col">Recurso</th>
+                  <th scope="col">Descripción</th>
+                  <th scope="col">Enlace</th>
+                </tr>
+              </thead>
+              <tbody>
+                <!--<tr>
+                  <td>Desarrollador Web</td>
+                  <td>Creación y mantenimiento de sitios web.</td>
+                  <td>2</td>
+                  <td>Remunerado</td>
+                  <td><a href="/apply/1" class="btn btn-primary">Aplicar</a></td>
+                </tr>
+                -->
+                <tr>
+                  <td>Políticas Interna para el staff (Publicable)</td>
+                  <td>Política interna para el staff del Discord, información sobre obligaciones, derechos como staff, guías para aplicar sanciones y más.</td>
+                  <td><a href="docs/protocolo-staff" class="btn btn-primary">Ver última versión en PDF (Portable Document Format)</a></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+</body>
+<style>
+    body {
+      background-color: #333;
+      color: #fff;
+      font-family: sans-serif;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+      background-color: #222;
+      border-radius: 10px;
+    }
+
+    h2 {
+      color: #ff4444;
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    th, td {
+      color: #fff;
+      border-color: #444;
+    }
+
+    .btn-primary {
+      background-color: #ff4444;
+      border-color: #ff4444;
+    }
+
+    .btn-primary:hover {
+      background-color: #cc0000;
+      border-color: #cc0000;
+    }
+    .notification {
+      margin: 20px 0;
+      padding: 10px;
+      border-radius: 5px;
+      font-weight: bold;
+      text-align: center;
+    }
+    .notification-danger {
+      background-color: #dc3545;
+      color: #fff;
+    }
+    .notification-warning {
+      background-color: #ffc107;
+      color: #333;
+    }
+</style>
+</html>

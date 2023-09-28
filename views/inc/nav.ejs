@@ -81,8 +81,15 @@
         <li class="nav-item">
           <a class="nav-link" href="/support">Soporte</a>
         </li>
-        <li class="nav-item">
-          <a class="nav-link" href="/jobs">Trabajos</a>
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" id="moderationDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            Moderación
+          </a>
+          <div class="dropdown-menu" aria-labelledby="moderationDropdown">
+            <a class="dropdown-item" href="/team">Equipo</a>
+            <a class="dropdown-item" href="/jobs">Trabajos</a>
+            <a class="dropdown-item" href="/recursos">Recursos</a>
+          </div>
         </li>
       </ul>
       <ul class="navbar-nav ml-auto">
@@ -99,6 +106,7 @@
             <% if (isStaff) { %>
               <a class="dropdown-item" href="/staff">Pandel de staff</a>
               <% } %>
+              <a class="dropdown-item" href="/settings">Ajustes</a>
             <a class="dropdown-item" href="/logout">Cerrar sesión</a>
           </div>
         </li>
