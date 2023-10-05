@@ -21,7 +21,8 @@ const client = new Client({
     intents: [
       Intents.FLAGS.GUILDS, 
       Intents.FLAGS.GUILD_MESSAGES, 
-      Intents.FLAGS.DIRECT_MESSAGES
+      Intents.FLAGS.DIRECT_MESSAGES,
+      Intents.FLAGS.GUILD_MEMBERS
     ] 
   });
 const db = mysql.createPool({
@@ -579,19 +580,41 @@ function checkDev(){
 async function checkrole(memberid, roleid, guildid) {
   try {
     const guild = await client.guilds.fetch(guildid);
-    const member = await guild.members.fetch(memberid);
     const role = guild.roles.cache.get(roleid);
 
-    if (role && member.roles.cache.has(role.id)) {
+    if (!role) {
+      return false;
+    }
+
+    let member;
+    let memberFound = false;
+    let after = null;
+
+    do {
+      const members = await guild.members.fetch({ limit: 1000, after });
+      
+      for (const guildMember of members.values()) {
+        if (guildMember.id === memberid) {
+          member = guildMember;
+          memberFound = true;
+          break;
+        }
+      }
+
+      after = members.lastKey();
+    } while (!memberFound && after);
+
+    if (memberFound && member.roles.cache.has(role.id)) {
       return true;
     } else {
       return false;
     }
   } catch (error) {
     console.error(error);
-    return false; 
+    return false;
   }
 }
+
 
 module.exports.checkDev = checkDev
 module.exports.getAvatar = getAvatar

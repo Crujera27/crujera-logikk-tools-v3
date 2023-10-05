@@ -104,7 +104,7 @@ app.use(
       "/reactivar"
     ],
     (req, res, next) => {
-      const userId = req.user.discord_id;
+      const userId = req.user.id;
       db.query(
         'SELECT * FROM settings WHERE user_id = ?',
         [userId],
@@ -119,7 +119,7 @@ app.use(
             db.query(
               'INSERT INTO settings (user_id, profile_image_url, warn_notification, support_notification, suspicious_activity_notification, api_key_status) VALUES (?, ?, ?, ?, ?, ?)',
               [
-                userId,
+                req.user.id,
                 "https://i.imgur.com/qxzp6Ux.jpg",
                 "disabled",
                 "disabled",
@@ -260,7 +260,7 @@ app.get('/tickets', async (req, res) => {
   const tickets = await Ticket.findAll({
     where: { userId: req.user.id },
     order: [['updatedAt', 'DESC']]
-  });
+  });s
   res.render('tickets', { tickets, user: req.user, noti: req.query.noti });
 }else{
   return res.redirect('/auth/discord')}})
@@ -555,13 +555,43 @@ app.get('/docs/protocolo-staff', (req, res) => {
         return res.redirect('/auth/discord')
     }
   });
-  const staffIds = process.env.staffs_ids.split(',');
 
-  async function isStaff(req) {
+
+
+  const staffIds = [
+    '451765453988298764',
+    '493487938118746124',
+    '466519141059133442',
+    '463335219169329185',
+    '954427633821700116'
+  ];
+  async function isStaff(req, res, next) {
+    try {
+      const results = await new Promise((resolve, reject) => {
+        db.query('SELECT isStaff FROM users WHERE id = ?', [req.user.id], (error, results) => {
+          if (error) {
+            console.error(error);
+            reject(error);
+          } else {
+            resolve(results);
+          }
+        });
+      });
+  
+      const isStaffBuffer = results[0] && results[0].isStaff;
+      const isStaff = isStaffBuffer ? isStaffBuffer[0] === 1 : false;
+      return isStaff;
+    } catch (error) {
+      return res.status(500).json({ error: '500 | Server Error' });
+    }
+  }
+
+    /*
     const supportconf = require('./config/support.json');
     const result = await require('./main').checkrole(req.user.discord_id, supportconf.staffroleid, supportconf.supportServerId);
     return result;
-  }
+    */
+
   
   
   // Staff controller
