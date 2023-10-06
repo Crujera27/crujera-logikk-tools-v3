@@ -260,7 +260,7 @@ app.get('/tickets', async (req, res) => {
   const tickets = await Ticket.findAll({
     where: { userId: req.user.id },
     order: [['updatedAt', 'DESC']]
-  });s
+  });
   res.render('tickets', { tickets, user: req.user, noti: req.query.noti });
 }else{
   return res.redirect('/auth/discord')}})
