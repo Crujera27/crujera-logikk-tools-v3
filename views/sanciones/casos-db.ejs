@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+<%- include('../inc/nav.ejs') %>
+<title>Logikk's Dashboard - Casos Públicos</title>
+<nav class="navbar">
+  <h2></h2>
+</nav>
+<div class="container">
+  <h2 class="text-center mb-4">Casos Públicos</h2>
+  
+  <div class="mb-3">
+    <input type="text" id="searchInput" class="form-control" placeholder="Buscar un caso...">
+  </div>
+
+  <% if (casos.length > 0) { %>
+    <table class="table table-striped">
+      <thead class="thead-dark">
+        <tr>
+          <th scope="col">ID</th>
+          <th scope="col">Cita</th>
+          <th scope="col">Tipo</th>
+          <th scope="col">Link a PDF</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% casos.forEach((caso) => { %>
+          <tr>
+            <td><%= caso.ID %></td>
+            <td><%= caso.Cita %></td>
+            <td><%= caso.type %></td>
+            <td>
+              <a href="<%= caso.pdflink %>" class="btn btn-primary" target="_blank">Ver PDF</a>
+            </td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  <% } else { %>
+    &nbsp;
+    <p>No hay casos públicos para mostrar</p>
+  <% } %>
+</div>
+
+<script>
+  document.getElementById('searchInput').addEventListener('input', function () {
+    const searchQuery = this.value.toLowerCase();
+    const rows = document.querySelectorAll('tbody tr');
+
+    rows.forEach(function (row) {
+      const citaText = row.querySelector('td:nth-child(2)').textContent.toLowerCase();
+      if (citaText.includes(searchQuery)) {
+        row.style.display = '';
+      } else {
+        row.style.display = 'none';
+      }
+    });
+  });
+</script>
+
+</body>
+</html>
+<style>
+  body {
+    background-color: #333;
+    color: #fff;
+    font-family: sans-serif;
+  }
+
+  .container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #222;
+    border-radius: 10px;
+  }
+
+  h1 {
+    font-size: 3rem;
+    margin-bottom: 0;
+  }
+
+  h2 {
+    font-size: 2rem;
+    margin-top: 0;
+    opacity: 0.8;
+    color: #ff4444;
+    text-align: center;
+    margin-bottom: 30px;
+  }
+
+  th,
+  td {
+    color: #fff;
+    border-color: #444;
+  }
+
+  .table-striped tbody tr:nth-of-type(odd) {
+    background-color: #444;
+  }
+
+  .table-striped tbody tr:hover {
+    background-color: #666;
+  }
+
+  th {
+    background-color: #111;
+  }
+
+  .btn-primary {
+    background-color: #ff4444;
+    border-color: #ff4444;
+  }
+
+  .btn-primary:hover {
+    background-color: #cc0000;
+    border-color: #cc0000;
+  }
+</style>

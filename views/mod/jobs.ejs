@@ -7,8 +7,11 @@
     <div class="container mt-5">
       <div class="row">
         <div class="col-12">
+          <% if (error === 'notavailable') { %>
+            <div class="notification notification-danger">Actualmente, no estamos buscando interesados para la posición seleccionada.</div>
+          <% } %>
           <div class="table-responsive">
-            <h2 class="text-center mb-4">Recursos</h2>
+            <h2 class="text-center mb-4">Trabajos</h2>
             <table class="table table-striped">
               <thead class="thead-dark">
                 <tr>

@@ -549,7 +549,19 @@ app.get('/docs/protocolo-staff', (req, res) => {
     const sql = 'SELECT * FROM warns WHERE user_id = ?';
     db.query(sql, [req.user.discord_id], (err, results) => {
     if (err) throw err;
-    res.render('warns', { warns: results, user: req.user});
+    res.render('sanciones/warns', { warns: results, user: req.user});
+    });
+    }else{
+        return res.redirect('/auth/discord')
+    }
+  });
+
+  app.get('/casos-db', (req, res) => {
+    if (req.isAuthenticated()) {
+    const sql = 'SELECT * FROM casospub';
+    db.query(sql, (err, results) => {
+    if (err) throw err;
+    res.render('sanciones/casos-db.ejs', { casos: results, user: req.user});
     });
     }else{
         return res.redirect('/auth/discord')
@@ -557,14 +569,6 @@ app.get('/docs/protocolo-staff', (req, res) => {
   });
 
 
-
-  const staffIds = [
-    '451765453988298764',
-    '493487938118746124',
-    '466519141059133442',
-    '463335219169329185',
-    '954427633821700116'
-  ];
   async function isStaff(req, res, next) {
     try {
       const results = await new Promise((resolve, reject) => {

@@ -5,11 +5,11 @@
   <link href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
   <style>
     .navbar {
-      background-color: transparent; /* Transparent background */
+      background-color: transparent; 
       font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
       border-radius: 0;
-      transition: background-color 0.3s ease; /* Smooth transition on hover */
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Add a subtle shadow */
+      transition: background-color 0.3s ease; 
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); 
     }
 
     .navbar-dark .navbar-brand, .navbar-dark .navbar-nav .nav-link {
@@ -19,7 +19,7 @@
     }
 
     .navbar-dark .navbar-brand:hover, .navbar-dark .navbar-nav .nav-link:hover {
-      color: rgb(201, 126, 126) !important; /* Hover color */
+      color: rgb(201, 126, 126) !important;
     }
 
     .navbar-toggler {
@@ -72,14 +72,23 @@
     </button>
     <div class="collapse navbar-collapse" id="navbarCollapse">
       <ul class="navbar-nav mr-auto">
-        <li class="nav-item">
-          <a class="nav-link" href="/warns">Mis warns</a>
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" id="moderationDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            Sanciones
+          </a>
+          <div class="dropdown-menu" aria-labelledby="moderationDropdown">
+            <a class="dropdown-item" href="/warns">Mis warns</a>
+            <a class="dropdown-item" href="/casos-db">Casos públicos</a>
+          </div>
         </li>
-        <li class="nav-item">
-          <a class="nav-link" href="/tickets">Mis Tickets</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="/support">Soporte</a>
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" id="moderationDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            Soporte
+          </a>
+          <div class="dropdown-menu" aria-labelledby="moderationDropdown">
+            <a class="dropdown-item" href="/tickets">Mis Tickets</a>
+            <a class="dropdown-item" href="/support">Crear nuevo ticket</a>
+          </div>
         </li>
         <li class="nav-item dropdown">
           <a class="nav-link dropdown-toggle" href="#" id="moderationDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
