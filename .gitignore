@@ -2,3 +2,4 @@ node_modules/*
 conf.d/*
 .env
 config/*
+node_modules/
