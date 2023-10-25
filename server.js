@@ -471,7 +471,7 @@ function isValidImageUrl(url) {
 
 function updateSetting(settingName, req, res) {
   if (req.isAuthenticated()) {
-    const userId = req.user.discord_id;
+    const userId = req.user.id;
     const settingValue = req.body.settingValue;
 
     const settingColumns = {

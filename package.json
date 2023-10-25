@@ -19,7 +19,7 @@
   },
   "name": "live.crujera.logikk.tools.v3",
   "description": "V3 logikk tools con mysql y menos bugs",
-  "version": "3.3.7",
+  "version": "3.3.7F1",
   "main": "main.js",
   "repository": {
     "type": "git",
