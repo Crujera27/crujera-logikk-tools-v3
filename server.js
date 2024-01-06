@@ -192,18 +192,17 @@ passport.use(new DiscordStrategy({
   callbackURL: process.env.app_callbackURL,
   scope: ['identify'],
 }, (accessToken, refreshToken, profile, done) => {
-  const { id, username, discriminator, avataruuid } = profile;
-
+  const { id, username, discriminator, avatar } = profile;
   db.query('SELECT * FROM users WHERE discord_id = ?', [id], (error, results) => {
     if (error) throw error;
 
     if (results.length === 0) {
-      db.query('INSERT INTO users (discord_id, username, discriminator, avatar_uuid) VALUES (?, ?, ?, ?)', [id, username, discriminator, avataruuid], (error) => {
+      db.query('INSERT INTO users (discord_id, username, discriminator, avatar_uuid) VALUES (?, ?, ?, ?)', [id, username, discriminator, avatar], (error) => {
         if (error) throw error;
         return done(null, profile);
       });
     } else {
-      db.query('UPDATE users SET username = ?, discriminator = ?, avatar_uuid = ? WHERE discord_id = ?', [username, discriminator, avataruuid, id], (error) => {
+      db.query('UPDATE users SET username = ?, discriminator = ?, avatar_uuid = ? WHERE discord_id = ?', [username, discriminator, avatar, id], (error) => {
         if (error) throw error;
         return done(null, profile);
       });
@@ -320,6 +319,33 @@ app.get('/', (req, res) => {
   });
   }
 });
+
+
+app.get('/economy', (req, res) => {
+  if (req.isAuthenticated()) {
+    res.render('economy', {
+      user: req.user,
+  });
+  } else {
+    res.redirect('/auth/discord');
+  }
+});
+
+/*
+
+No terminado
+
+app.get('/vote-2023', (req, res) => {
+  if (req.isAuthenticated()) {
+    res.render('vote', {
+      user: req.user,
+  });
+  } else {
+    res.redirect('/auth/discord');
+  }
+});
+
+*/
 
 app.get('/dash', (req, res) => {
   if (req.isAuthenticated()) {

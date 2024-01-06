@@ -89,7 +89,7 @@ client.on('message', message => {
     
       
       if (message.content.startsWith('lt!warn')) {
-      if (!message.member.permissions.has('MANAGE_ROLES')) {
+      if (!message.member.permissions.has('MANAGE_MESSAGES')) {
           return;
         }
         const user = message.mentions.users.first();
