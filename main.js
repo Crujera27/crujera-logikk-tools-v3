@@ -89,7 +89,7 @@ client.on('message', message => {
     
       
       if (message.content.startsWith('lt!warn')) {
-      if (!message.member.permissions.has('MANAGE_MESSAGES')) {
+      if (!message.member.permissions.has('MANAGE_ROLES')) {
           return;
         }
         const user = message.mentions.users.first();
@@ -465,7 +465,7 @@ function addwarn(user, nivel, reason, channel, guild, modid, deletemessage, send
             const embed = new Discord.MessageEmbed()
               .setColor('#FF0000')
               .setTitle(`Mensaje de la moderación de Logikk\'s Discord`)
-              .setDescription(`Hola, <@${user.id}>. Nos ponemos en contacto con usted mediante el presente comunicado para informarle sobre las medidas que se han tomado debido a su conducta.\n\nSanción impuest: Warn **${warnLevel}**\nRazón: **${reason}**\n\nLe recomendamos visitar el canal de <#901587290093158442> y echar un vistazo para evitar futuras sanciones.\nPuede encontrar una lista de sus warns en https://logikk.galnod.com/warns\nSi considera que esta sanción ha sido aplicada de forma incorrecta / injusta, puede enviar una solitud de apelación en https://logikk.galnod.com/support\n\n\nUn saludo,\n**Equipo administrativo de Logikk's Discord**`)
+              .setDescription(`Hola, <@${user.id}>. Nos ponemos en contacto con usted mediante el presente comunicado para informarle sobre las medidas que se han tomado debido a su conducta.\n\nSanción impuesta: Warn **${warnLevel}**\nRazón: **${reason}**\n\nLe recomendamos visitar el canal de <#901587290093158442> y echar un vistazo para evitar futuras sanciones.\nPuede encontrar una lista de sus warns en https://logikk.galnod.com/warns\nSi considera que esta sanción ha sido aplicada de forma incorrecta / injusta, puede enviar una solitud de apelación en https://logikk.galnod.com/support\n\n\nUn saludo,\n**Equipo administrativo de Logikk's Discord**`)
               .setTimestamp();
     
             user.send({ embeds: [embed] })
@@ -547,7 +547,7 @@ function RemovedwarnstaffLog(modid, userid, warnid){
     const logchannel = client.guilds.cache.get(automodconf.guild).channels.cache.get(automodconf.log)
     const log = new Discord.MessageEmbed()
     .setColor('#ff0000')
-    .setTitle('Logikk\'s Tools | Warn eleiminado')
+    .setTitle('Logikk\'s Tools | Warn eliminado')
     .setDescription(`ID warn: **${warnid}**\nModerador: **<@${modid}>(${modid})**\nSanción: **Warn**\nUsuario: **<@${userid}>(${userid})**`)
     logchannel.send({ embeds: [log]})
 }
