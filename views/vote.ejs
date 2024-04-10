@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+<%- include('./inc/nav.ejs') %>
+<title>Logikk's Dashboard - Votaciónes a Staff</title>
+<nav class="navbar">
+  <h2></h2>
+</nav>
+<div class="container mt-5">
+  <h2 class="text-center mb-4">Casos Públicos</h2>
+
+  <div class="categories">
+    <h3>Categories</h3>
+    <ul>
+      <li><a href="/vote-2023?category=category1">Category 1</a></li>
+      <li><a href="/vote-2023?category=category2">Category 2</a></li>
+      <li><a href="/vote-2023?category=category3">Category 3</a></li>
+      <!-- Add more categories as needed -->
+    </ul>
+  </div>
+</div>
+</body>
+</html>
+<style>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background-color: #333;
+  font-family: Arial, sans-serif;
+  color: #fff;
+}
+
+.container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+  background-color: #222;
+  border-radius: 10px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+.navbar {
+  background-color: #333;
+  padding: 10px;
+  text-align: center;
+}
+
+.navbar h2 {
+  margin: 0;
+  font-size: 24px;
+  color: #fff;
+}
+
+.categories {
+  margin-top: 20px;
+  color: #fff;
+}
+
+.categories h3 {
+  font-size: 18px;
+  color: #ff4444;
+}
+
+.categories ul {
+  list-style: none;
+  padding: 0;
+}
+
+.categories li {
+  margin-bottom: 5px;
+}
+
+.categories a {
+  text-decoration: none;
+  color: #ff4444;
+  font-weight: bold;
+}
+
+.categories a:hover {
+  text-decoration: underline;
+}
+
+.content {
+  margin-top: 20px;
+}
+
+.form-control {
+  width: 100%;
+  padding: 10px;
+  font-size: 16px;
+  background-color: #444;
+  border: 1px solid #555;
+  color: #fff;
+  border-radius: 4px;
+}
+
+</style>
